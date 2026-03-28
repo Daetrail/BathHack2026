@@ -134,34 +134,39 @@ app.delete('/delete-toilet', (req, res) => {
         return res.status(403).json({ success: false, message: 'Not your toilet to delete' });
     }
 
-    db.prepare('DELETE FROM toilets WHERE id = ?').run(toiletId);
+    db.prepare('DELETE FROM toilets WHERE toiletId = ?').run(toiletId);
     res.json({ success: true, message: 'Toilet deleted' });
 });
 
 // ---- Review routes ----
-app.post('/toilets/:id/reviews', (req, res) => {
-    const { rating, comment } = req.body;
-    if (!rating) return res.status(400).json({ success: false, message: 'Rating required' });
+app.post('/create-review', (req, res) => {
+    const { toiletId, star, title, description } = req.body;
+    if (!star) return res.status(400).json({ success: false, message: 'Rating required' });
+    if (!title) return res.status(400).json({ success: false, message: 'Title required' });
+    if (!description) return res.status(400).json({ success: false, message: 'Description required' });
 
-    const toilet = db.prepare('SELECT * FROM toilets WHERE id = ?').get(req.params.id);
+    const token = req.headers['authorization']?.split(' ')[1];
+
+    const toilet = db.prepare('SELECT * FROM toilets WHERE toiletId = ?').get(toiletId);
     if (!toilet) return res.status(404).json({ success: false, message: 'Toilet not found' });
 
     const existing = db.prepare(
-        'SELECT * FROM reviews WHERE toilet_id = ? AND user_id = ?'
-    ).get(req.params.id, req.user.id);
+        'SELECT * FROM reviews WHERE toiletId = ? AND userId = ?').get(toiletId, jwt.verify(token, JWT_SECRET).userId);
     if (existing) {
         return res.status(409).json({ success: false, message: 'You already reviewed this toilet' });
     }
 
     const result = db.prepare(`
-    INSERT INTO reviews (toilet_id, user_id, rating, comment)
-    VALUES (?, ?, ?, ?)
-  `).run(req.params.id, req.user.id, rating, comment || null);
+    INSERT INTO reviews (toiletId, userId, star, title, description )
+    VALUES (?, ?, ?, ?, ?)
+  `).run(toiletId, jwt.verify(token, JWT_SECRET).userId, star, title, description);
 
     res.json({ success: true, id: result.lastInsertRowid, message: 'Review added' });
 });
 
 app.delete('/reviews/:id', (req, res) => {
+    const token = req.headers['authorization']?.split(' ')[1];
+
     const review = db.prepare('SELECT * FROM reviews WHERE id = ?').get(req.params.id);
     if (!review) return res.status(404).json({ success: true, message: 'Review not found' });
     if (review.user_id !== req.user.id) {
