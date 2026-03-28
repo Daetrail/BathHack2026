@@ -6,13 +6,44 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D108B1592F77E2010092E446 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = D108B1582F77E1FD0092E446 /* .gitignore */; };
+		D108B15B2F77E2660092E446 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = D108B15A2F77E2620092E446 /* README.md */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		D108B13C2F77E0B40092E446 /* BathHack2026.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BathHack2026.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D108B1582F77E1FD0092E446 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		D108B15A2F77E2620092E446 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D108B15F2F77E3520092E446 /* Exceptions for "BathHack2026" folder in "BathHack2026" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ViewModels/PlaceholderViewModel.swift,
+			);
+			target = D108B13B2F77E0B40092E446 /* BathHack2026 */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		D108B1602F77E3520092E446 /* Exceptions for "BathHack2026" folder in "Copy Bundle Resources" phase from "BathHack2026" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = D108B13A2F77E0B40092E446 /* Resources */;
+			membershipExceptions = (
+				ViewModels/PlaceholderViewModel.swift,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D108B13E2F77E0B40092E446 /* BathHack2026 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D108B15F2F77E3520092E446 /* Exceptions for "BathHack2026" folder in "BathHack2026" target */,
+				D108B1602F77E3520092E446 /* Exceptions for "BathHack2026" folder in "Copy Bundle Resources" phase from "BathHack2026" target */,
+			);
 			path = BathHack2026;
 			sourceTree = "<group>";
 		};
@@ -32,6 +63,8 @@
 		D108B1332F77E0B40092E446 = {
 			isa = PBXGroup;
 			children = (
+				D108B15A2F77E2620092E446 /* README.md */,
+				D108B1582F77E1FD0092E446 /* .gitignore */,
 				D108B13E2F77E0B40092E446 /* BathHack2026 */,
 				D108B13D2F77E0B40092E446 /* Products */,
 			);
@@ -109,6 +142,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D108B15B2F77E2660092E446 /* README.md in Resources */,
+				D108B1592F77E2010092E446 /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

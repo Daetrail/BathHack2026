@@ -11,7 +11,7 @@ import SwiftUI
 struct BathHack2026App: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
         }
     }
 }
