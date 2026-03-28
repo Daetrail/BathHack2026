@@ -28,7 +28,7 @@ db.exec(`
         date DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(toilet_id) REFERENCES toilets(toilet_id),
         FOREIGN KEY(user_id) REFERENCES users(user_id)
-    )
+    );
     
     CREATE TABLE IF NOT EXISTS sessions (
         session_id INTEGER PRIMARY KEY AUTOINCREMENT,

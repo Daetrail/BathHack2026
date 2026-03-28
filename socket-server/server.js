@@ -14,12 +14,25 @@ function authenticate(req, res, next) {
     if (!header) return res.status(401).json({ success: false, message: 'No token provided' });
 
     const token = header.split(' ')[1];
+
+    const session = db.prepare(`
+        SELECT sessions.*, users.username
+        FROM sessions
+        JOIN users ON sessions.user_id = users.user_id
+        WHERE sessions.token = ?
+    `).get(token);
+
+    if (!session) return res.status(401).json({success: false, message: 'Invalid or expired session'})
+
     try {
-        req.user = jwt.verify(token, JWT_SECRET);
-        next();
+        jwt.verify(token, JWT_SECRET);
     } catch {
-        res.status(401).json({ success: false, message: 'Invalid token' });
+        db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
+        res.status(401).json({ success: false, message: 'Session expired' });
     }
+
+    req.user = { id: session.user_id, username: session.username };
+    next();
 }
 
 // ---- Auth routes ----
@@ -49,6 +62,9 @@ app.post('/login', async (req, res) => {
     const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, {
         expiresIn: '7d',
     });
+
+    db.prepare('INSERT INTO sessions (user_id, token) VALUES (?, ?)').run(users.user_id, token);
+
     res.json({ success: true, token });
 });
 
