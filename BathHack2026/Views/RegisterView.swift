@@ -21,12 +21,12 @@ struct RegisterView: View {
                 .padding(.bottom, 30)
             
             VStack (spacing: 20) {
-
+                
                 TextField("Username", text: $viewModel.userNameInput)
                     .padding()
                     .background(Color(UIColor.systemGray6))
                     .cornerRadius(10)
-
+                
                 SecureField("Password", text: $viewModel.passwordInput)
                     .padding()
                     .background(Color(UIColor.systemGray6))
@@ -48,11 +48,19 @@ struct RegisterView: View {
             
             Spacer()
         }
+        .fullScreenCover(isPresented: $viewModel.navigateToList) {
+            ListView()
+        }
+        .alert("Invalid Credentials", isPresented: $viewModel.showError) {
+                    Button("OK", role: .cancel) {}
+                } message: {
+                    Text("Please enter a valid username and password.")
+                }
     }
 }
-
-struct RegisterView_Previews: PreviewProvider {
-    static var previews: some View {
-        RegisterView()
+    
+    struct RegisterView_Previews: PreviewProvider {
+        static var previews: some View {
+            RegisterView()
+        }
     }
-}

@@ -9,10 +9,11 @@ import SwiftUI
 
 @Observable
 class RegisterViewModel {
-        var navigateToOnboarding = false
+    var navigateToList = false
         
-        var userNameInput: String = ""
-        var passwordInput: String = ""
+    var userNameInput: String = ""
+    var passwordInput: String = ""
+    var showError: Bool = false
     
     func isValidUserName(_ userName: String) -> Bool {
         return !userName.isEmpty
@@ -24,7 +25,9 @@ class RegisterViewModel {
     
     func register() {
         if (isValidPassword(passwordInput) && isValidUserName(userNameInput)) {
-            navigateToOnboarding = true
+            navigateToList = true
+        } else {
+            showError = true
         }
     }
 }
