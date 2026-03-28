@@ -29,6 +29,13 @@ db.exec(`
         FOREIGN KEY(toilet_id) REFERENCES toilets(toilet_id),
         FOREIGN KEY(user_id) REFERENCES users(user_id)
     )
+    
+    CREATE TABLE IF NOT EXISTS sessions (
+        session_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        token TEXT UNIQUE NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+    )
 `);
 
 module.exports = db;
