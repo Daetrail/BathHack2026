@@ -1,6 +1,8 @@
 const Database = require('better-sqlite3');
 const db = new Database('app.db');
 
+db.pragma('foreign_keys = ON');
+
 db.exec(`
     CREATE TABLE IF NOT EXISTS users (
         user_id INTEGER PRIMARY KEY AUTOINCREMENT,
