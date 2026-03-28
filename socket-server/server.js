@@ -24,6 +24,24 @@ function authenticate(req, res, next) {
     }
 }
 */
+app.get('/me', (req, res) => {
+    const token = req.headers['authorization']?.split(' ')[1];
+    if (!token) return res.status(401).json({ success: false, message: 'No token provided' });
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const user = db.prepare('SELECT * FROM users WHERE userId = ?').get(decoded.userId);
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+        res.json({ success: true });
+    } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            return res.status(401).json({success: false, message: 'Token expired'});
+        }
+    }
+
+    return res.status(403).json({ success: false, message: 'Invalid token' });
+});
 
 // ---- Auth routes ----
 app.post('/sign-up', async (req, res) => {
@@ -176,18 +194,6 @@ app.delete('delete-review', (req, res) => {
 
     db.prepare('DELETE FROM reviews WHERE reviewId = ?').run(reviewId);
     res.json({ success: true });
-});
-
-app.get('/users/:id/reviews', (req, res) => {
-    const reviews = db.prepare(`
-    SELECT reviews.*, toilets.name AS toilet_name
-    FROM reviews
-    JOIN toilets ON reviews.toilet_id = toilets.id
-    WHERE reviews.user_id = ?
-    ORDER BY reviews.created_at DESC
-  `).all(req.params.id);
-
-    res.json({success: true, reviews});
 });
 
 app.get('/users', (req, res) => {
