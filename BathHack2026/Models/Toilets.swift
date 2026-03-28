@@ -5,7 +5,7 @@
 //  Created by Matt Dustin Cruz on 28/03/2026.
 //
 
-struct Toilets: Codable {
+struct Toilets: Codable, Hashable {
     let toiletId: Int
     let userCreator: String
     let toiletName: String
