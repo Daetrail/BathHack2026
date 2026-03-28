@@ -17,7 +17,7 @@ struct ListView: View {
                         .font(.system(size: 40, weight: .bold))
                         .foregroundStyle(.primary)
                     Spacer()
-                    Image(systemName:"figure.walk.motion.trianglebadge.exclamationmark")
+                    Image(systemName: "figure.walk.motion.trianglebadge.exclamationmark")
                         .font(.system(size: 40))
                         .foregroundStyle(.primary)
                         .padding(.trailing)
@@ -47,14 +47,17 @@ struct ListView: View {
                 ScrollView {
                     VStack(spacing: 16) {
                         ForEach(viewModel.filteredToilets, id: \.toiletId) { toilet in
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color(UIColor.systemGray6))
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 100)
-                                .overlay(
-                                    VStack(alignment: .leading, spacing: 8) {
-                                        HStack {
-                                            if toilet.avgStar >= 4 {
+                            Button {
+                                viewModel.goToToilet(toilet)
+                            } label: {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color(UIColor.systemGray6))
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 100)
+                                    .overlay(
+                                        VStack(alignment: .leading, spacing: 8) {
+                                            HStack {
+                                                if toilet.avgStar >= 4 {
                                                     Image(systemName: "crown.fill")
                                                         .foregroundStyle(.yellow)
                                                 } else if toilet.avgStar <= 2 {
@@ -65,21 +68,23 @@ struct ListView: View {
                                                     .font(.headline)
                                                     .foregroundStyle(.primary)
                                                 Spacer()
-                                            HStack(spacing: 4) {
-                                                ForEach(1..<6) { star in
-                                                    Image(systemName: Float(star) <= toilet.avgStar ? "star.fill" : "star")
-                                                        .foregroundStyle(.yellow)
+                                                HStack(spacing: 4) {
+                                                    ForEach(1..<6) { star in
+                                                        Image(systemName: Float(star) <= toilet.avgStar ? "star.fill" : "star")
+                                                            .foregroundStyle(.yellow)
+                                                    }
                                                 }
                                             }
+                                            Text(toilet.description)
+                                                .font(.subheadline)
+                                                .foregroundStyle(.gray)
+                                                .lineLimit(2)
                                         }
-                                        Text(toilet.description)
-                                            .font(.subheadline)
-                                            .foregroundStyle(.gray)
-                                            .lineLimit(2)
-                                    }
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding()
-                                )
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .padding()
+                                    )
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
                     .padding()
@@ -89,6 +94,9 @@ struct ListView: View {
             }
             .navigationDestination(isPresented: $viewModel.navigateToAddToilet) {
                 AddToiletView()
+            }
+            .navigationDestination(item: $viewModel.selectedToilet) { toilet in
+                ToiletView(toilet: toilet)
             }
         }
     }
