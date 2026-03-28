@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct AuthResponse: Decodable {
+struct AuthResponse: Codable {
     let success: Bool
     let token: String?
     let message: String?
@@ -28,7 +28,7 @@ final class AuthService {
             "psasword": password
         ])
         
-        let response = try JSONDecoder().decode(AuthResponse.self, from: data)
+        let response = try parseCodable(type: AuthResponse.self, from: data)
         
         guard response.success, let token = response.token else {
             throw APIError.serverError(message: response.message ?? "Sign up failed")
@@ -45,7 +45,7 @@ final class AuthService {
             "password": password
         ])
         
-        let response = try JSONDecoder().decode(AuthResponse.self, from: data)
+        let response = try parseCodable(type: AuthResponse.self, from: data)
         
         guard response.success, let token = response.token else {
             throw APIError.serverError(message: response.message ?? "Sign in failed")
@@ -61,16 +61,24 @@ final class AuthService {
             return false
         }
        
-        let data = try await networkService.post("/sign-in", [
+        let data = try await networkService.post("/me", [
             "token": token
         ])
         
-        let response = try JSONDecoder().decode(AuthResponse.self, from: data)
+        let response = try parseCodable(type: AuthResponse.self, from: data)
         
         guard response.success else {
             return false
         }
         
         return true
+    }
+    
+    func setTokenFromKeychain() {
+        guard let token = try? KeychainHelper.standard.read(service: userTokenKeychainService, type: String.self) else {
+            return
+        }
+        
+        networkService.token = token
     }
 }
