@@ -14,10 +14,7 @@ class ListViewModel {
     var searchText: String = ""
     var toilets: [Toilets] = MockData.toilets
     var reviews: [Reviews] = MockData.reviews
-    
-    func goToAddToilet() {
-        navigateToAddToilet = true
-    }
+    var selectedToilet: Toilets? = nil
     
     var filteredToilets: [Toilets] {
             if searchText.isEmpty {
@@ -26,4 +23,13 @@ class ListViewModel {
                 return toilets.filter { $0.toiletName.localizedCaseInsensitiveContains(searchText) }
             }
         }
+    
+    func goToAddToilet() {
+        navigateToAddToilet = true
+    }
+    
+    func goToToilet(_ toilet: Toilets) {
+        selectedToilet = toilet
+    }
+    
 }
