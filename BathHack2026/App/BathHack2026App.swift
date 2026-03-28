@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct BathHack2026App: App {
+    @State private var locationService = LocationService()
+    
     var body: some Scene {
         WindowGroup {
             RootView()
+                .environment(locationService)
         }
     }
 }

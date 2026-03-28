@@ -9,6 +9,7 @@ import MapKit
 import SwiftUI
 
 struct AddToiletView: View {
+    @Environment(LocationService.self) var locationService
     @State private var viewModel = AddToiletViewModel()
     
     var body: some View {
@@ -20,7 +21,7 @@ struct AddToiletView: View {
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 30)
             
-            VStack () {
+            VStack {
                 
                 Text("Name")
                     .font(.system(size: 20, weight: .bold))
@@ -44,10 +45,45 @@ struct AddToiletView: View {
                     .cornerRadius(10)
                     .padding(.bottom, 50)
                 
-                Text("Location")
-                    .font(.system(size: 20, weight: .bold))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.bottom, 30)
+                HStack {
+                    Text("Location")
+                        .font(.system(size: 20, weight: .bold))
+                        .frame(alignment: .leading)
+                    
+                    Spacer()
+                    
+                    Button {
+                        viewModel.lockForLocationRequest = true
+                        Task {
+                            let coordinates = try? await locationService.getLocation()
+                            
+                            if let coordinates {
+                                viewModel.markerCoordinate = coordinates
+                                
+                                viewModel.mapCameraPosition = .region(MKCoordinateRegion(
+                                    center: coordinates,
+                                    span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                                ))
+                                
+                                viewModel.mapView.toggle()
+                            }
+                            viewModel.lockForLocationRequest = false
+                        }
+                    } label: {
+                        ZStack {
+                            Text("Use my location")
+                                .opacity(viewModel.lockForLocationRequest ? 0 : 1)
+                            
+                            ProgressView()
+                                .opacity(viewModel.lockForLocationRequest ? 1 : 0)
+                        }
+                        .foregroundStyle(.secondary)
+                        .font(.caption)
+                    }
+                    .buttonStyle(.glass)
+                    .disabled(viewModel.lockForLocationRequest)
+                }
+                .padding(.bottom, 30)
                 
                 Text("Longitude")
                     .font(.system(size: 12, weight: .bold))
@@ -74,8 +110,6 @@ struct AddToiletView: View {
                     .cornerRadius(10)
                     .padding(.bottom, 20)
                 
-                
-                
                 Button {
                     viewModel.addToilet()
                 } label: {
@@ -87,25 +121,65 @@ struct AddToiletView: View {
                 .frame(height: 60)
                 .buttonStyle(.glassProminent)
                 .tint(Color.green)
-                
             }
             .padding(.horizontal, 40)
             
             Spacer()
         }
-        .fullScreenCover(isPresented: $viewModel.navigateToList) {
-            ListView()
+        .sheet(isPresented: $viewModel.mapView) {
+            NavigationStack {
+                ZStack {
+                    MapReader { proxy in
+                        Map(position: $viewModel.mapCameraPosition) {
+                            if let coord = viewModel.markerCoordinate {
+                                Marker("Selected", systemImage: "mappin",
+                                       coordinate: coord)
+                                    .tint(.red)
+                            }
+                        }
+                        .onTapGesture { screenPosition in
+                            if let coord = proxy.convert(screenPosition, from: .local) {
+                                viewModel.markerCoordinate = coord
+                            }
+                        }
+                    }
+                    
+                    VStack {
+                        Spacer()
+                        
+                        Button {
+                            if let coord = viewModel.markerCoordinate {
+                                viewModel.latitude = String(format: "%.6f", coord.latitude)
+                                viewModel.longitude = String(format: "%.6f", coord.longitude)
+                            }
+                            viewModel.mapView.toggle()
+                        } label: {
+                            Text("Use this location")
+                                .padding()
+                        }
+                        .buttonStyle(.glass)
+                        .disabled(viewModel.markerCoordinate == nil)
+                    }
+                }
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button("Back", systemImage: "chevron.left") {
+                            viewModel.mapView.toggle()
+                        }
+                    }
+                }
+            }
         }
         .alert("Invalid Credentials", isPresented: $viewModel.showError) {
-                    Button("OK", role: .cancel) {}
-                } message: {
-                    Text("Please enter valid data for all fields.")
-                }
-    }
-}
-    
-    struct AddToiletView_Previews: PreviewProvider {
-        static var previews: some View {
-            AddToiletView()
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Please enter valid data for all fields.")
         }
     }
+}
+
+struct AddToiletView_Previews: PreviewProvider {
+    static var previews: some View {
+        AddToiletView()
+    }
+}
