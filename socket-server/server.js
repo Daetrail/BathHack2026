@@ -144,7 +144,7 @@ app.post('/create-toilet', (req, res) => {
 });
 
 app.delete('/delete-toilet', (req, res) => {
-    const toiletId = req.body;
+    const {toiletId} = req.body;
     const token = req.headers['authorization']?.split(' ')[1];
     const toilet = db.prepare('SELECT * FROM toilets WHERE toiletId = ?').get(toiletId);
     if (!toilet) return res.status(404).json({ success: false, message: 'Toilet not found' });
@@ -176,14 +176,16 @@ app.post('/create-review', (req, res) => {
 
     const result = db.prepare(`
     INSERT INTO reviews (toiletId, userId, star, title, description )
-    VALUES (?, ?, ?, ?, ?)
-  `).run(toiletId, jwt.verify(token, JWT_SECRET).userId, star, title, description);
+    VALUES (?, ?, ?, ?, ?)`).run(toiletId, jwt.verify(token, JWT_SECRET).userId, star, title, description);
+
+    const { avgStar } = db.prepare('SELECT AVG(star) as avgStar FROM reviews WHERE toiletId = ?').get(toiletId);
+    db.prepare('UPDATE toilets SET avgStar = ? WHERE toiletId = ?').run(avgStar, toiletId);
 
     res.json({ success: true} );
 });
 
 app.delete('delete-review', (req, res) => {
-    const reviewId = req.body;
+    const {reviewId} = req.body;
     const token = req.headers['authorization']?.split(' ')[1];
 
     const review = db.prepare('SELECT * FROM reviews WHERE reviewId = ?').get(reviewId);
@@ -193,6 +195,10 @@ app.delete('delete-review', (req, res) => {
     }
 
     db.prepare('DELETE FROM reviews WHERE reviewId = ?').run(reviewId);
+
+    const { avgStar } = db.prepare('SELECT AVG(star) as avgStar FROM reviews WHERE toiletId = ?').get(toiletId);
+    db.prepare('UPDATE toilets SET avgStar = ? WHERE toiletId = ?').run(avgStar, toiletId);
+
     res.json({ success: true });
 });
 
