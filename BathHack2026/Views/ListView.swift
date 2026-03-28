@@ -4,22 +4,26 @@
 //
 //  Created by Oscar Leigh on 28/03/2026.
 //
-
 import SwiftUI
 
 struct ListView: View {
-@State private var viewModel = ListViewModel()
-    
+    @State private var viewModel = ListViewModel()
+
     var body: some View {
         NavigationStack {
-            
             VStack {
-                Text("Find My Toilet")
-                    .font(.system(size: 50, weight: .bold))
-                    .foregroundStyle(.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding()
-                
+                HStack {
+                    Text("Find My Toilet")
+                        .font(.system(size: 40, weight: .bold))
+                        .foregroundStyle(.primary)
+                    Spacer()
+                    Image(systemName:"figure.walk.motion.trianglebadge.exclamationmark")
+                        .font(.system(size: 40))
+                        .foregroundStyle(.primary)
+                        .padding(.trailing)
+                }
+                .padding()
+
                 HStack {
                     HStack {
                         Image(systemName: "magnifyingglass")
@@ -31,7 +35,7 @@ struct ListView: View {
                     .cornerRadius(10)
 
                     Button {
-                        viewModel.goToAddToilet()
+                        // add action here
                     } label: {
                         Image(systemName: "plus.circle.fill")
                             .foregroundStyle(.green)
@@ -39,39 +43,51 @@ struct ListView: View {
                     }
                 }
                 .padding(.horizontal)
-                
+
                 ScrollView {
                     VStack(spacing: 16) {
-                        ForEach(0..<10) { _ in
+                        ForEach(viewModel.toilets, id: \.toiletId) { toilet in
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(Color(UIColor.systemGray6))
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 100)
                                 .overlay(
                                     VStack(alignment: .leading, spacing: 8) {
-                                        Text("Toilet Name")
-                                            .font(.headline)
-                                            .foregroundStyle(.primary)
-                                        Text("Address goes here")
+                                        HStack {
+                                            if toilet.avgStar >= 4 {
+                                                    Image(systemName: "crown.fill")
+                                                        .foregroundStyle(.yellow)
+                                                } else if toilet.avgStar <= 2 {
+                                                    Image(systemName: "exclamationmark.triangle.fill")
+                                                        .foregroundStyle(.red)
+                                                }
+                                                Text(toilet.toiletName)
+                                                    .font(.headline)
+                                                    .foregroundStyle(.primary)
+                                                Spacer()
+                                            HStack(spacing: 4) {
+                                                ForEach(1..<6) { star in
+                                                    Image(systemName: star <= toilet.avgStar ? "star.fill" : "star")
+                                                        .foregroundStyle(.yellow)
+                                                }
+                                            }
+                                        }
+                                        Text(toilet.description)
                                             .font(.subheadline)
                                             .foregroundStyle(.gray)
+                                            .lineLimit(2)
                                     }
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                        .padding()
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding()
                                 )
                         }
                     }
                     .padding()
                 }
-                
+
                 Spacer()
             }
-            .navigationDestination(isPresented: $viewModel.navigateToAddToilet) {
-                AddToiletView()
-            }
         }
-        
-        
     }
 }
 

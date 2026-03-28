@@ -12,6 +12,8 @@ class ListViewModel {
     var navigateToAddToilet = false
     
     var searchText: String = ""
+    var toilets: [Toilets] = MockData.toilets
+    var reviews: [Reviews] = MockData.reviews
     
     func goToAddToilet() {
         navigateToAddToilet = true
