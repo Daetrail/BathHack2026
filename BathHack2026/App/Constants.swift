@@ -7,4 +7,5 @@
 
 final class Constants {
     static let apiUrl = "https://test.com"
+    static let appName = "FindMyToilet"
 }
