@@ -1,0 +1,12 @@
+//
+//  APIError.swift
+//  BathHack2026
+//
+//  Created by Matt Dustin Cruz on 28/03/2026.
+//
+
+import Foundation
+
+enum APIError: Error {
+    case serverError(message: String)
+}

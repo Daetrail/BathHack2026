@@ -7,6 +7,60 @@
 
 import Foundation
 
+enum HTTPMethod: String {
+    case get = "GET"
+    case post = "POST"
+    case delete = "DELETE"
+}
+
 final class NetworkService {
+    let baseURL: String
+    var token: String?
     
+    init(baseURL: String, token: String? = nil) {
+        self.baseURL = baseURL
+        self.token = token
+    }
+    
+    func get(_ path: String) async throws -> Data {
+        return try await execute(.get, path: path)
+    }
+    
+    func post(_ path: String, _ body: some Encodable) async throws -> Data {
+        return try await execute(.post, path: path, body: body)
+    }
+    
+    func delete(_ path: String, _ body: some Encodable) async throws -> Data {
+        return try await execute(.delete, path: path, body: body)
+    }
+    
+    private func execute(_ method: HTTPMethod, path: String) async throws -> Data {
+        return try await execute(method, path: path, body: nil as String?)
+    }
+    
+    private func execute<B: Encodable>(_ method: HTTPMethod, path: String, body: B?) async throws -> Data {
+        guard let url = URL(string: baseURL + path) else {
+            throw URLError(.badURL)
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = method.rawValue
+        
+        if let token {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        if let body {
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONEncoder().encode(body)
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        if let http = response as? HTTPURLResponse, http.statusCode >= 500 {
+            throw URLError(.badServerResponse)
+        }
+
+        return data
+    }
 }

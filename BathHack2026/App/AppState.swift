@@ -18,6 +18,5 @@ final class AppState {
         case neverLoggedIn    // First-time user
     }
    
-    var connectionState: SocketIOStatus = .notConnected
     var authState: AuthState = .unknown
 }
