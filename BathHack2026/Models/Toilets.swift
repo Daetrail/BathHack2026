@@ -6,10 +6,12 @@
 //
 
 struct Toilets: Codable {
-    let toiletId: String
+    let toiletId: Int
+    let userCreator: String
     let toiletName: String
+    let aiDescription: String?
     let description: String
     let latitude: String
     let longitude: String
-    let avgStar: Int
+    let avgStar: Float
 }
