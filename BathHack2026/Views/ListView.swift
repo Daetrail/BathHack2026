@@ -14,7 +14,7 @@ struct ListView: View {
         NavigationStack {
             
             VStack {
-                Text("Toilets")
+                Text("Find My Toilet")
                     .font(.system(size: 50, weight: .bold))
                     .foregroundStyle(.primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -39,6 +39,30 @@ struct ListView: View {
                     }
                 }
                 .padding(.horizontal)
+                
+                ScrollView {
+                    VStack(spacing: 16) {
+                        ForEach(0..<10) { _ in
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color(UIColor.systemGray6))
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 100)
+                                .overlay(
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text("Toilet Name")
+                                            .font(.headline)
+                                            .foregroundStyle(.primary)
+                                        Text("Address goes here")
+                                            .font(.subheadline)
+                                            .foregroundStyle(.gray)
+                                    }
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .padding()
+                                )
+                        }
+                    }
+                    .padding()
+                }
                 
                 Spacer()
             }
