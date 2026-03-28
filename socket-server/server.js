@@ -9,6 +9,7 @@ const JWT_SECRET = 'im a chud';
 app.use(express.json());
 
 // ---- Auth middleware ----
+/*
 function authenticate(req, res, next) {
     const header = req.headers.authorization;
     if (!header) return res.status(401).json({ success: false, message: 'No token provided' });
@@ -22,6 +23,7 @@ function authenticate(req, res, next) {
         res.status(401).json({ success: false, message: 'Session expired' });
     }
 }
+*/
 
 // ---- Auth routes ----
 app.post('/sign-up', async (req, res) => {
@@ -88,8 +90,9 @@ app.get('/toilets/:id', (req, res) => {
 });
 */
 
-app.post('/create-toilet', authenticate, (req, res) => {
-    const { token, toiletName, description, latitude, longitude } = req.body;
+app.post('/create-toilet', (req, res) => {
+    const { toiletName, description, latitude, longitude } = req.body;
+    const token = req.headers['authorization']?.split(' ')[1];
     if (!toiletName || !description || latitude == null || longitude == null) {
         return res.status(400).json({ success: false, message: 'Cannot leave empty fields' });
     }
@@ -122,19 +125,21 @@ app.post('/create-toilet', authenticate, (req, res) => {
 
 });
 
-app.delete('/toilets/:id', authenticate, (req, res) => {
-    const toilet = db.prepare('SELECT * FROM toilets WHERE id = ?').get(req.params.id);
+app.delete('/delete-toilet', (req, res) => {
+    const toiletId = req.body;
+    const token = req.headers['authorization']?.split(' ')[1];
+    const toilet = db.prepare('SELECT * FROM toilets WHERE toiletId = ?').get(toiletId);
     if (!toilet) return res.status(404).json({ success: false, message: 'Toilet not found' });
-    if (toilet.added_by !== req.user.id) {
+    if (toilet.userId !== jwt.verify(token, JWT_SECRET).userId) {
         return res.status(403).json({ success: false, message: 'Not your toilet to delete' });
     }
 
-    db.prepare('DELETE FROM toilets WHERE id = ?').run(req.params.id);
+    db.prepare('DELETE FROM toilets WHERE id = ?').run(toiletId);
     res.json({ success: true, message: 'Toilet deleted' });
 });
 
 // ---- Review routes ----
-app.post('/toilets/:id/reviews', authenticate, (req, res) => {
+app.post('/toilets/:id/reviews', (req, res) => {
     const { rating, comment } = req.body;
     if (!rating) return res.status(400).json({ success: false, message: 'Rating required' });
 
@@ -156,7 +161,7 @@ app.post('/toilets/:id/reviews', authenticate, (req, res) => {
     res.json({ success: true, id: result.lastInsertRowid, message: 'Review added' });
 });
 
-app.delete('/reviews/:id', authenticate, (req, res) => {
+app.delete('/reviews/:id', (req, res) => {
     const review = db.prepare('SELECT * FROM reviews WHERE id = ?').get(req.params.id);
     if (!review) return res.status(404).json({ success: true, message: 'Review not found' });
     if (review.user_id !== req.user.id) {
@@ -180,7 +185,7 @@ app.get('/users/:id/reviews', (req, res) => {
 });
 
 app.get('/users', (req, res) => {
-    const users = db.prepare('SELECT user_id, username FROM users').all();
+    const users = db.prepare('SELECT userId, username FROM users').all();
     res.json({success: true, users});
 })
 
