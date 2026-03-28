@@ -12,11 +12,13 @@ db.exec(`
 
     CREATE TABLE IF NOT EXISTS toilets (
         toiletId INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId INTEGER NOT NULL,
         toiletName TEXT UNIQUE NOT NULL,
         description TEXT NOT NULL,
         latitude TEXT NOT NULL,
         longitude TEXT NOT NULL,
-        avgStar FLOAT NOT NULL
+        avgStar FLOAT NOT NULL,
+        FOREIGN KEY(userId) REFERENCES users(userId)
     );
     
     CREATE TABLE iF NOT EXISTS reviews (

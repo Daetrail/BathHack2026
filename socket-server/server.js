@@ -33,14 +33,15 @@ app.post('/sign-up', async (req, res) => {
     const hash = await bcrypt.hash(password, 10);
     try {
         db.prepare('INSERT INTO users (username, password) VALUES (?, ?)').run(username, hash);
-        res.json({ success: true, message: 'User created' });
+        // GENERATE AND RETURN TOKEN
+        res.json({ success: true });
     } catch (error) {
         console.log('Actual error: ' + error.message);
         res.status(409).json({ success: false, message: 'Username already taken' });
     }
 });
 
-app.post('/login', async (req, res) => {
+app.post('/sign-in', async (req, res) => {
     const { username, password } = req.body;
     const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
     if (!user) return res.status(401).json({ success: false, message: 'Invalid credentials' });
@@ -48,7 +49,7 @@ app.post('/login', async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ success: false, message: 'Invalid credentials' });
 
-    const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, {
+    const token = jwt.sign({ id: user.userId, username: user.username }, JWT_SECRET, {
         expiresIn: '7d',
     });
 
@@ -56,20 +57,21 @@ app.post('/login', async (req, res) => {
 });
 
 // ---- Toilet routes ----
-app.get('/toilets', (req, res) => {
+app.get('/get-toilets', (req, res) => {
     const toilets = db.prepare(`
-    SELECT toilets.*, users.username AS added_by_username
+    SELECT toilets.*, users.username AS userCreator
     FROM toilets
-    JOIN users ON toilets.added_by = users.id
+    JOIN users ON toilets.userId = users.userId
   `).all();
     res.json({success: true, toilets});
 });
 
+/*
 app.get('/toilets/:id', (req, res) => {
     const toilet = db.prepare(`
-    SELECT toilets.*, users.username AS added_by_username
+    SELECT toilets.*, users.username AS userCreator
     FROM toilets
-    JOIN users ON toilets.added_by = users.id
+    JOIN users ON toilets.userId = users.userId
     WHERE toilets.id = ?
   `).get(req.params.id);
 
@@ -85,19 +87,24 @@ app.get('/toilets/:id', (req, res) => {
 
     res.json({ success: true, ...toilet, reviews });
 });
+*/
 
-app.post('/toilets', authenticate, (req, res) => {
-    const { name, latitude, longitude, address } = req.body;
-    if (!name || latitude == null || longitude == null) {
-        return res.status(400).json({ success: false, message: 'Name, latitude, and longitude required' });
+app.post('/create-toilet', authenticate, (req, res) => {
+    const { token, toiletName, description, latitude, longitude } = req.body;
+    if (!toiletName || !description || latitude == null || longitude == null) {
+        return res.status(400).json({ success: false, message: 'Cannot leave empty fields' });
     }
 
-    const result = db.prepare(`
-    INSERT INTO toilets (name, latitude, longitude, address, added_by)
-    VALUES (?, ?, ?, ?, ?)
-  `).run(name, latitude, longitude, address || null, req.user.id);
+    try {
+        const result = db.prepare(`
+        INSERT INTO toilets (userId, toiletName, description, latitude, longitude, avgStar)
+        VALUES (?, ?, ?, ?, ?, ?)`).run(req.user.userId, toiletName, description, latitude, longitude, 0);
 
-    res.json({ success: true, id: result.lastInsertRowid, message: 'Toilet added' });
+        res.json({ success: true });
+    } catch {
+        res.json({ success: false, message: 'Toilet already exists' });
+    }
+
 });
 
 app.delete('/toilets/:id', authenticate, (req, res) => {
