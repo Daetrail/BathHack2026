@@ -15,28 +15,16 @@ function authenticate(req, res, next) {
 
     const token = header.split(' ')[1];
 
-    const session = db.prepare(`
-        SELECT sessions.*, users.username
-        FROM sessions
-        JOIN users ON sessions.user_id = users.user_id
-        WHERE sessions.token = ?
-    `).get(token);
-
-    if (!session) return res.status(401).json({success: false, message: 'Invalid or expired session'})
-
     try {
-        jwt.verify(token, JWT_SECRET);
+        req.user = jwt.verify(token, JWT_SECRET);
+        next();
     } catch {
-        db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
         res.status(401).json({ success: false, message: 'Session expired' });
     }
-
-    req.user = { id: session.user_id, username: session.username };
-    next();
 }
 
 // ---- Auth routes ----
-app.post('/register', async (req, res) => {
+app.post('/sign-up', async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) {
         return res.status(400).json({ success: false, message: 'Username and password required' });
@@ -44,9 +32,10 @@ app.post('/register', async (req, res) => {
 
     const hash = await bcrypt.hash(password, 10);
     try {
-        db.prepare('INSERT INTO users (username, password_hash) VALUES (?, ?)').run(username, hash);
+        db.prepare('INSERT INTO users (username, password) VALUES (?, ?)').run(username, hash);
         res.json({ success: true, message: 'User created' });
-    } catch {
+    } catch (error) {
+        console.log('Actual error: ' + error.message);
         res.status(409).json({ success: false, message: 'Username already taken' });
     }
 });
@@ -56,14 +45,12 @@ app.post('/login', async (req, res) => {
     const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
     if (!user) return res.status(401).json({ success: false, message: 'Invalid credentials' });
 
-    const match = await bcrypt.compare(password, user.password_hash);
+    const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ success: false, message: 'Invalid credentials' });
 
     const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, {
         expiresIn: '7d',
     });
-
-    db.prepare('INSERT INTO sessions (user_id, token) VALUES (?, ?)').run(users.user_id, token);
 
     res.json({ success: true, token });
 });
@@ -169,6 +156,11 @@ app.get('/users/:id/reviews', (req, res) => {
 
     res.json({success: true, reviews});
 });
+
+app.get('/users', (req, res) => {
+    const users = db.prepare('SELECT user_id, username FROM users').all();
+    res.json({success: true, users});
+})
 
 // ---- Start server ----
 app.listen(3000, () => console.log('Server running on :3000'));

@@ -5,37 +5,33 @@ db.pragma('foreign_keys = ON');
 
 db.exec(`
     CREATE TABLE IF NOT EXISTS users (
-        user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS toilets (
-        toilet_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        toilet_name TEXT UNIQUE NOT NULL,
+        toiletId INTEGER PRIMARY KEY AUTOINCREMENT,
+        toiletName TEXT UNIQUE NOT NULL,
+        description TEXT NOT NULL,
         latitude TEXT NOT NULL,
         longitude TEXT NOT NULL,
-        description TEXT NOT NULL
+        avgStar FLOAT NOT NULL
     );
     
     CREATE TABLE iF NOT EXISTS reviews (
-        review_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        toilet_id INTEGER NOT NULL,
-        user_id INTEGER NOT NULL,
+        reviewId INTEGER PRIMARY KEY AUTOINCREMENT,
+        toiletId INTEGER NOT NULL,
+        userId INTEGER NOT NULL,
         star INTEGER,
         title TEXT NOT NULL,
         description TEXT NOT NULL,
         date DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(toilet_id) REFERENCES toilets(toilet_id),
-        FOREIGN KEY(user_id) REFERENCES users(user_id)
+        FOREIGN KEY(toiletId) REFERENCES toilets(toiletId),
+        FOREIGN KEY(userId) REFERENCES users(userId)
     );
-    
-    CREATE TABLE IF NOT EXISTS sessions (
-        session_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        token TEXT UNIQUE NOT NULL,
-        FOREIGN KEY (user_id) REFERENCES users(user_id)
-    )
 `);
+
+console.log('Tables:', db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all());
 
 module.exports = db;
