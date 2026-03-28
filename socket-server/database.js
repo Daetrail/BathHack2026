@@ -21,7 +21,7 @@ db.exec(`
         FOREIGN KEY(userId) REFERENCES users(userId)
     );
     
-    CREATE TABLE iF NOT EXISTS reviews (
+    CREATE TABLE IF NOT EXISTS reviews (
         reviewId INTEGER PRIMARY KEY AUTOINCREMENT,
         toiletId INTEGER NOT NULL,
         userId INTEGER NOT NULL,

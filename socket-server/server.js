@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const db = require('./database');
 
 const app = express();
-const JWT_SECRET = 'change-this-to-something-long-and-random';
+const JWT_SECRET = 'im a chud';
 
 app.use(express.json());
 
@@ -34,7 +34,9 @@ app.post('/sign-up', async (req, res) => {
     try {
         db.prepare('INSERT INTO users (username, password) VALUES (?, ?)').run(username, hash);
         // GENERATE AND RETURN TOKEN
-        res.json({ success: true });
+        const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
+        const token = jwt.sign({ userId: user.userId }, JWT_SECRET, { expiresIn: '7d' });
+        res.json({ success: true, token });
     } catch (error) {
         console.log('Actual error: ' + error.message);
         res.status(409).json({ success: false, message: 'Username already taken' });
@@ -49,9 +51,7 @@ app.post('/sign-in', async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ success: false, message: 'Invalid credentials' });
 
-    const token = jwt.sign({ id: user.userId, username: user.username }, JWT_SECRET, {
-        expiresIn: '7d',
-    });
+    const token = jwt.sign({ userId: user.userId }, JWT_SECRET, { expiresIn: '7d' });
 
     res.json({ success: true, token });
 });
@@ -93,6 +93,22 @@ app.post('/create-toilet', authenticate, (req, res) => {
     const { token, toiletName, description, latitude, longitude } = req.body;
     if (!toiletName || !description || latitude == null || longitude == null) {
         return res.status(400).json({ success: false, message: 'Cannot leave empty fields' });
+    }
+
+    if (!toiletName) {
+        return res.status(400).json({ success: false, message: 'Empty toilet name' });
+    }
+
+    if (!description) {
+        return res.status(400).json({ success: false, message: 'Empty description' });
+    }
+
+    if (latitude == null) {
+        return res.status(400).json({ success: false, message: 'Empty latitude' });
+    }
+
+    if (longitude == null) {
+        return res.status(400).json({ success: false, message: 'Empty longitude' });
     }
 
     try {
