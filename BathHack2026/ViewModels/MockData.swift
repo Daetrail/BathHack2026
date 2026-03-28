@@ -39,7 +39,7 @@ struct MockData {
         Toilets(
             toiletId: 4,
             userCreator: "oscar",
-            toiletName: "67 Toilet",
+            toiletName: "67 Toilet 12312312312312312312312312312312kl3n12ok3nl1k2n3lk12n3l12n3l21332n3l12kn3kl21n312",
             aiDescription: nil,
             description: "676961",
             latitude: "51.3765",
@@ -65,6 +65,15 @@ struct MockData {
             star: 3.1,
             title: "Decent",
             description: "Could do with more frequent cleaning.",
+            date: Date()
+        ),
+        Reviews(
+            reviewId: 4,
+            toiletId: 1,
+            userCreator: "oscar",
+            star: 3.1,
+            title: "Decent",
+            description: "Could do with more frequent cleaning.038740872308472985723987041297509237509234705927390587234908572394572934750293487503985793487594037502398759023874509483725908237598043750923780",
             date: Date()
         ),
         Reviews(
