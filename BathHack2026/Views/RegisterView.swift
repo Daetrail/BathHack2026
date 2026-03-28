@@ -12,7 +12,41 @@ struct RegisterView: View {
     
     var body: some View {
         NavigationStack {
+            Spacer()
             
+            Text("Create an Account")
+                .font(.system(size: 40, weight: .bold))
+                .foregroundStyle(.black)
+                .multilineTextAlignment(.center)
+                .padding(.bottom, 30)
+            
+            VStack (spacing: 20) {
+
+                TextField("Username", text: $viewModel.userNameInput)
+                    .padding()
+                    .background(Color(UIColor.systemGray6))
+                    .cornerRadius(10)
+
+                SecureField("Password", text: $viewModel.passwordInput)
+                    .padding()
+                    .background(Color(UIColor.systemGray6))
+                    .cornerRadius(10)
+                
+                Button {
+                    viewModel.register()
+                } label: {
+                    Text("Register")
+                        .font(.title)
+                        .padding(.horizontal, 30)
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 60)
+                .buttonStyle(.glassProminent)
+                
+            }
+            .padding(.horizontal, 40)
+            
+            Spacer()
         }
     }
 }
