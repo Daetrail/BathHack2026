@@ -8,24 +8,34 @@ struct OnboardingView: View {
             VStack {
                 Spacer()
 
-                Text("C.H.U.D")
-                    .font(.largeTitle)
-                    .foregroundStyle(.white)
+                Text("Find My Toilet")
+                    .font(.system(size: 50, weight: .bold))
+                    .foregroundStyle(.black)
+                    .multilineTextAlignment(.center)
 
                 VStack(spacing: 16) {
-                    Button("Sign In") {
+                    Button {
                         viewModel.goToSignIn()
+                    } label: {
+                        Text("Sign In")
+                            .font(.title)
+                            .padding(.horizontal, 50)
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
                     .buttonStyle(.glassProminent)
 
-                    Button("Register") {
+                    Button {
                         viewModel.goToRegister()
+                    } label: {
+                        Text("Register")
+                            .font(.title)
+                            .padding(.horizontal, 40)
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
-                    .buttonStyle(.glass)
+                    .tint(.gray)
+                    .buttonStyle(.glassProminent)
                 }
                 .padding(.horizontal)
 
@@ -35,7 +45,7 @@ struct OnboardingView: View {
                 SignInView()
             }
             .navigationDestination(isPresented: $viewModel.navigateToRegister) {
-                AgeView()
+                RegisterView()
             }
         }
     }
