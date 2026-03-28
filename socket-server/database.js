@@ -18,7 +18,7 @@ db.exec(`
         latitude TEXT NOT NULL,
         longitude TEXT NOT NULL,
         avgStar FLOAT NOT NULL,
-        FOREIGN KEY(userId) REFERENCES users(userId)
+        FOREIGN KEY(userId) REFERENCES users(userId) ON DELETE CASCADE
     );
     
     CREATE TABLE IF NOT EXISTS reviews (
@@ -29,8 +29,8 @@ db.exec(`
         title TEXT NOT NULL,
         description TEXT NOT NULL,
         date DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(toiletId) REFERENCES toilets(toiletId),
-        FOREIGN KEY(userId) REFERENCES users(userId)
+        FOREIGN KEY(toiletId) REFERENCES toilets(toiletId) ON DELETE CASCADE,
+        FOREIGN KEY(userId) REFERENCES users(userId) ON DELETE CASCADE
     );
 `);
 

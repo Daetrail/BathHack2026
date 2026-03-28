@@ -61,8 +61,7 @@ app.get('/get-toilets', (req, res) => {
     const toilets = db.prepare(`
     SELECT toilets.*, users.username AS userCreator
     FROM toilets
-    JOIN users ON toilets.userId = users.userId
-  `).all();
+    JOIN users ON toilets.userId = users.userId`).all();
     res.json({success: true, toilets});
 });
 
@@ -114,7 +113,7 @@ app.post('/create-toilet', authenticate, (req, res) => {
     try {
         const result = db.prepare(`
         INSERT INTO toilets (userId, toiletName, description, latitude, longitude, avgStar)
-        VALUES (?, ?, ?, ?, ?, ?)`).run(req.user.userId, toiletName, description, latitude, longitude, 0);
+        VALUES (?, ?, ?, ?, ?, ?)`).run(jwt.verify(token, JWT_SECRET).userId, toiletName, description, latitude, longitude, 0);
 
         res.json({ success: true });
     } catch {
