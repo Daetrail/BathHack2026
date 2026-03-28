@@ -14,11 +14,11 @@ struct RegisterView: View {
         NavigationStack {
             Spacer()
             
-            Text("Create an Account")
-                .font(.system(size: 40, weight: .bold))
-                .foregroundStyle(.primary)
-                .multilineTextAlignment(.center)
-                .padding(.bottom, 30)
+//            Text("Find My toilet")
+//                .font(.system(size: 40, weight: .bold))
+//                .foregroundStyle(.primary)
+//                .multilineTextAlignment(.center)
+//                .padding(.bottom, 30)
             
             VStack (spacing: 20) {
                 
@@ -36,7 +36,7 @@ struct RegisterView: View {
                     viewModel.register()
                 } label: {
                     Text("Register")
-                        .font(.title)
+                        .font(.system(size: 20))
                         .padding(.horizontal, 30)
                 }
                 .frame(maxWidth: .infinity)

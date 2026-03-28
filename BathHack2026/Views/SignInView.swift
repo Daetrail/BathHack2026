@@ -14,11 +14,11 @@ struct SignInView: View {
         NavigationStack {
             Spacer()
             
-            Text("Sign In To Your Existing Account")
-                .font(.system(size: 40, weight: .bold))
-                .foregroundStyle(.primary)
-                .multilineTextAlignment(.center)
-                .padding(.bottom, 30)
+//            Text("Find my Toilet")
+//                .font(.system(size: 40, weight: .bold))
+//                .foregroundStyle(.primary)
+//                .multilineTextAlignment(.center)
+//                .padding(.bottom, 30)
             
             VStack (spacing: 20) {
                 
@@ -36,7 +36,7 @@ struct SignInView: View {
                     viewModel.register()
                 } label: {
                     Text("Sign In")
-                        .font(.title)
+                        .font(.system(size: 20))
                         .padding(.horizontal, 30)
                 }
                 .frame(maxWidth: .infinity)

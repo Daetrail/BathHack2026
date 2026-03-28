@@ -18,4 +18,12 @@ class ListViewModel {
     func goToAddToilet() {
         navigateToAddToilet = true
     }
+    
+    var filteredToilets: [Toilets] {
+            if searchText.isEmpty {
+                return toilets
+            } else {
+                return toilets.filter { $0.toiletName.localizedCaseInsensitiveContains(searchText) }
+            }
+        }
 }

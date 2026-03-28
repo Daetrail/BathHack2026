@@ -35,7 +35,7 @@ struct ListView: View {
                     .cornerRadius(10)
 
                     Button {
-                        // add action here
+                        viewModel.goToAddToilet()
                     } label: {
                         Image(systemName: "plus.circle.fill")
                             .foregroundStyle(.green)
@@ -46,7 +46,7 @@ struct ListView: View {
 
                 ScrollView {
                     VStack(spacing: 16) {
-                        ForEach(viewModel.toilets, id: \.toiletId) { toilet in
+                        ForEach(viewModel.filteredToilets, id: \.toiletId) { toilet in
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(Color(UIColor.systemGray6))
                                 .frame(maxWidth: .infinity)
@@ -86,6 +86,9 @@ struct ListView: View {
                 }
 
                 Spacer()
+            }
+            .navigationDestination(isPresented: $viewModel.navigateToAddToilet) {
+                AddToiletView()
             }
         }
     }
