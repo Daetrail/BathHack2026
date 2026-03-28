@@ -10,7 +10,7 @@ struct OnboardingView: View {
 
                 Text("Find My Toilet")
                     .font(.system(size: 50, weight: .bold))
-                    .foregroundStyle(.black)
+                    .foregroundStyle(.primary)
                     .multilineTextAlignment(.center)
 
                 VStack(spacing: 16) {

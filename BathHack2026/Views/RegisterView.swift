@@ -16,7 +16,7 @@ struct RegisterView: View {
             
             Text("Create an Account")
                 .font(.system(size: 40, weight: .bold))
-                .foregroundStyle(.black)
+                .foregroundStyle(.primary)
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 30)
             

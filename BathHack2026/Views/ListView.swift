@@ -8,11 +8,51 @@
 import SwiftUI
 
 struct ListView: View {
+@State private var viewModel = ListViewModel()
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        NavigationStack {
+            
+            VStack {
+                Text("Toilets")
+                    .font(.system(size: 50, weight: .bold))
+                    .foregroundStyle(.primary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+                
+                HStack {
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(.gray)
+                        TextField("Search...", text: $viewModel.searchText)
+                    }
+                    .padding()
+                    .background(Color(UIColor.systemGray6))
+                    .cornerRadius(10)
+
+                    Button {
+                        viewModel.goToAddToilet()
+                    } label: {
+                        Image(systemName: "plus.circle.fill")
+                            .foregroundStyle(.green)
+                            .font(.system(size: 40))
+                    }
+                }
+                .padding(.horizontal)
+                
+                Spacer()
+            }
+            .navigationDestination(isPresented: $viewModel.navigateToAddToilet) {
+                AddToiletView()
+            }
+        }
+        
+        
     }
 }
 
-#Preview {
-    ListView()
+struct ListView_Previews: PreviewProvider {
+    static var previews: some View {
+        ListView()
+    }
 }
