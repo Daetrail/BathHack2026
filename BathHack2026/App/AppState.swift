@@ -18,4 +18,6 @@ final class AppState {
     }
    
     var authState: AuthState = .unknown
+    
+    var username: String?
 }

@@ -11,6 +11,7 @@ struct AuthResponse: Decodable {
     let success: Bool
     let token: String?
     let message: String?
+    let username: String?
 }
 
 final class AuthService {
