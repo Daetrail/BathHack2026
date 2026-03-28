@@ -28,7 +28,7 @@ db.exec(`
         star INTEGER,
         title TEXT NOT NULL,
         description TEXT NOT NULL,
-        date DATETIME DEFAULT CURRENT_TIMESTAMP,
+        date INTEGER DEFAULT (strftime('%s', 'now')),
         FOREIGN KEY(toiletId) REFERENCES toilets(toiletId) ON DELETE CASCADE,
         FOREIGN KEY(userId) REFERENCES users(userId) ON DELETE CASCADE
     );

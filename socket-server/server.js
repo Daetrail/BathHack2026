@@ -202,9 +202,22 @@ app.delete('delete-review', (req, res) => {
     res.json({ success: true });
 });
 
-app.get('/users', (req, res) => {
-    const users = db.prepare('SELECT userId, username FROM users').all();
-    res.json({success: true, users});
+app.get('/get-users', (req, res) => {
+    try {
+        const users = db.prepare('SELECT userId, username FROM users').all();
+        res.json({success: true, users});
+    } catch {
+        res.json({success: false, message: 'No users found'})
+    }
+})
+
+app.get('/get-reviews', (req, res) => {
+    try {
+        const reviews = db.prepare('SELECT * FROM reviews').all();
+        res.json({success: true, reviews});
+    } catch {
+        res.json({success: false, message: 'No reviews found'})
+    }
 })
 
 // ---- Start server ----
