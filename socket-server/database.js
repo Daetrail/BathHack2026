@@ -18,9 +18,10 @@ db.exec(`
         latitude TEXT NOT NULL,
         longitude TEXT NOT NULL,
         avgStar FLOAT NOT NULL,
+        isFree INTEGER NOT NULL DEFAULT 1,
         FOREIGN KEY(userId) REFERENCES users(userId) ON DELETE CASCADE
     );
-    
+
     CREATE TABLE IF NOT EXISTS reviews (
         reviewId INTEGER PRIMARY KEY AUTOINCREMENT,
         toiletId INTEGER NOT NULL,
@@ -33,6 +34,14 @@ db.exec(`
         FOREIGN KEY(userId) REFERENCES users(userId) ON DELETE CASCADE
     );
 `);
+
+// Migration: add isFree column to existing databases that don't have it
+try {
+    db.exec('ALTER TABLE toilets ADD COLUMN isFree INTEGER NOT NULL DEFAULT 1');
+    console.log('Migration: added isFree column to toilets');
+} catch (e) {
+    // Column already exists, no action needed
+}
 
 console.log('Tables:', db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all());
 

@@ -49,6 +49,9 @@ final class NetworkService {
         if let token {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
+
+        // Required for ngrok free tier to skip the browser interstitial page
+        request.setValue("true", forHTTPHeaderField: "ngrok-skip-browser-warning")
         
         if let body {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")

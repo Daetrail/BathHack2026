@@ -1,3 +1,10 @@
+//
+//  OnboardingView.swift
+//  BathHack2026
+//
+//  Welcome screen with sign in and register options.
+//
+
 import SwiftUI
 
 struct OnboardingView: View {
@@ -8,36 +15,48 @@ struct OnboardingView: View {
             VStack {
                 Spacer()
 
-                Text("Find My Toilet")
-                    .font(.system(size: 50, weight: .bold))
-                    .foregroundStyle(.primary)
-                    .multilineTextAlignment(.center)
+                // App branding
+                VStack(spacing: 12) {
+                    Image(systemName: "toilet.fill")
+                        .font(.system(size: 60))
+                        .foregroundStyle(.blue)
 
+                    Text("Find My Toilet")
+                        .font(.system(size: 44, weight: .bold))
+                        .foregroundStyle(.primary)
+                        .multilineTextAlignment(.center)
+
+                    Text("Never get caught short again")
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                // Auth buttons
                 VStack(spacing: 16) {
                     Button {
                         viewModel.goToSignIn()
                     } label: {
                         Text("Sign In")
-                            .font(.title)
-                            .padding(.horizontal, 50)
+                            .font(.title2)
+                            .frame(maxWidth: .infinity)
                     }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 60)
+                    .frame(height: 56)
                     .buttonStyle(.glassProminent)
 
                     Button {
                         viewModel.goToRegister()
                     } label: {
                         Text("Register")
-                            .font(.title)
-                            .padding(.horizontal, 40)
+                            .font(.title2)
+                            .frame(maxWidth: .infinity)
                     }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 60)
+                    .frame(height: 56)
                     .tint(.gray)
                     .buttonStyle(.glassProminent)
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 24)
 
                 Spacer()
             }
@@ -48,11 +67,5 @@ struct OnboardingView: View {
                 RegisterView()
             }
         }
-    }
-}
-
-struct OnboardingView_Previews: PreviewProvider {
-    static var previews: some View {
-        OnboardingView()
     }
 }

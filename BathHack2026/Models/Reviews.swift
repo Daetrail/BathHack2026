@@ -7,7 +7,9 @@
 
 import Foundation
 
-struct Reviews: Codable, Hashable {
+/// Represents a user review for a toilet.
+/// Includes star rating, text, and the reviewer's username.
+struct Reviews: Codable, Hashable, Identifiable {
     let reviewId: Int
     let toiletId: Int
     let userCreator: String
@@ -15,4 +17,13 @@ struct Reviews: Codable, Hashable {
     let title: String
     let description: String
     let date: Date
+
+    var id: Int { reviewId }
+
+    /// Formatted date string for display (e.g. "28 Mar 2026")
+    var formattedDate: String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter.string(from: date)
+    }
 }
