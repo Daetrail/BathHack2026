@@ -67,7 +67,7 @@ struct ListView: View {
                                                 Spacer()
                                             HStack(spacing: 4) {
                                                 ForEach(1..<6) { star in
-                                                    Image(systemName: star <= toilet.avgStar ? "star.fill" : "star")
+                                                    Image(systemName: Float(star) <= toilet.avgStar ? "star.fill" : "star")
                                                         .foregroundStyle(.yellow)
                                                 }
                                             }
