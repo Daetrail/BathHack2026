@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Socket.IO Test Client</title>
+</head>
+<body>
+    <h1>Socket.IO Test</h1>
+    <input id="msgInput" placeholder="Enter a message">
+    <button onclick="sendMsg()">Send</button>
+    <ul id="messages"></ul>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        socket.on('connect', () => {
+            console.log('Connected', socket.id);
+            addMessage('Connected as ' + socket.id);
+        })
+
+        socket.on('chat message', (msg) => {
+            addMessage('received: ' + msg);
+        })
+
+        function addMessage(text) {
+            const li = document.createElement('li');
+            li.textContent = text;
+            document.getElementById('messages').appendChild(li);
+        }
+
+        function sendMsg() {
+
+        }
+    </script>
+</body>
+</html>
