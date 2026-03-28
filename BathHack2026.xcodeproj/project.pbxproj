@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		D108B1592F77E2010092E446 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = D108B1582F77E1FD0092E446 /* .gitignore */; };
 		D108B15B2F77E2660092E446 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = D108B15A2F77E2620092E446 /* README.md */; };
-		D108B1B52F7806FF0092E446 /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = D108B1B42F7806FF0092E446 /* SocketIO */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,7 +30,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D108B1B52F7806FF0092E446 /* SocketIO in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -76,7 +74,6 @@
 			);
 			name = BathHack2026;
 			packageProductDependencies = (
-				D108B1B42F7806FF0092E446 /* SocketIO */,
 			);
 			productName = BathHack2026;
 			productReference = D108B13C2F77E0B40092E446 /* BathHack2026.app */;
@@ -107,7 +104,6 @@
 			mainGroup = D108B1332F77E0B40092E446;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				D108B1B32F7806FF0092E446 /* XCRemoteSwiftPackageReference "socket.io-client-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D108B13D2F77E0B40092E446 /* Products */;
@@ -349,25 +345,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		D108B1B32F7806FF0092E446 /* XCRemoteSwiftPackageReference "socket.io-client-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/socketio/socket.io-client-swift.git";
-			requirement = {
-				branch = master;
-				kind = branch;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		D108B1B42F7806FF0092E446 /* SocketIO */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D108B1B32F7806FF0092E446 /* XCRemoteSwiftPackageReference "socket.io-client-swift" */;
-			productName = SocketIO;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D108B1342F77E0B40092E446 /* Project object */;
 }
