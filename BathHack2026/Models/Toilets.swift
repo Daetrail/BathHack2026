@@ -13,6 +13,7 @@ struct Toilets: Codable, Hashable, Identifiable {
     let toiletId: Int
     let userCreator: String
     let toiletName: String
+    let toiletImageFilename: String
     let aiDescription: String?
     let description: String
     let latitude: String
