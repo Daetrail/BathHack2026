@@ -10,6 +10,7 @@
 
 import MapKit
 import SwiftUI
+import PhotosUI
 
 struct AddToiletView: View {
     @Environment(LocationService.self) var locationService
@@ -156,6 +157,49 @@ struct AddToiletView: View {
                         }
                     }
                 }
+                
+                // MARK: - Upload image button
+                
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Photo")
+                        .font(.headline)
+
+                    PhotosPicker(selection: $viewModel.selectedPhoto, matching: .images) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color(UIColor.systemGray6))
+                                .frame(height: 120)
+
+                            if let image = viewModel.selectedImage {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(height: 120)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                            } else {
+                                VStack(spacing: 8) {
+                                    Image(systemName: "camera.fill")
+                                        .font(.system(size: 30))
+                                        .foregroundStyle(.secondary)
+                                    Text("Tap to add photo")
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                    }
+                }
+                .onChange(of: viewModel.selectedPhoto) { _, newItem in
+                    Task {
+                        if let data = try? await newItem?.loadTransferable(type: Data.self),
+                           let image = UIImage(data: data) {
+                            viewModel.selectedImage = image
+                        }
+                    }
+                }
+                
+                
+                
 
                 // MARK: - Submit button
                 Button {
@@ -258,6 +302,15 @@ struct AddToiletView: View {
                     }
                 }
             }
+        }
+    }
+}
+
+struct AddToiletView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationStack {
+            AddToiletView()
+                .environment(LocationService())
         }
     }
 }

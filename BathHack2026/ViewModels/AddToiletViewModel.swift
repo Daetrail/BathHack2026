@@ -11,6 +11,7 @@
 import CoreLocation
 import MapKit
 import SwiftUI
+import PhotosUI
 
 @Observable
 class AddToiletViewModel {
@@ -20,6 +21,8 @@ class AddToiletViewModel {
     var longitude: String = ""
     var latitude: String = ""
     var isFree: Bool = true
+    var selectedPhoto: PhotosPickerItem? = nil
+    var selectedImage: UIImage? = nil
 
     // MARK: - Map state
     var showMapSheet = false
