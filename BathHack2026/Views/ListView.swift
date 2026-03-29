@@ -307,7 +307,7 @@ struct ListView: View {
                         ? "Be the first to add a toilet!"
                         : "Try a different search term.")
                 )
-                .padding(.top, 40)
+                
             } else {
                 LazyVStack(spacing: 12) {
                     ForEach(viewModel.filteredToilets) { toilet in

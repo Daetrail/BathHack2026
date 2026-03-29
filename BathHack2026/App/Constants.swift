@@ -6,6 +6,6 @@
 //
 
 final class Constants {
-    static let apiUrl = "https://unlectured-fendered-jair.ngrok-free.dev"
+    static let apiUrl = "https://7c1c-138-38-223-95.ngrok-free.app"
     static let appName = "FindMyToilet"
 }

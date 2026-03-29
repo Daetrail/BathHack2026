@@ -5,6 +5,9 @@
 ## Build generated
 build/
 DerivedData/
+socket-server/node_modules
+socket-server/app.db
+node_modules
 
 ## Various settings
 *.pbxuser

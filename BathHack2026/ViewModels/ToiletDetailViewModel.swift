@@ -83,7 +83,7 @@ class ToiletDetailViewModel {
         )
 
         do {
-            try await ServiceContainer.shared.reviewService.createReview(newReview: newReview)
+            try await ServiceContainer.shared.reviewService.createReview(newReview: newReview, reviewImage: nil)
             didSubmitReview = true
             // Reset the form
             reviewTitle = ""

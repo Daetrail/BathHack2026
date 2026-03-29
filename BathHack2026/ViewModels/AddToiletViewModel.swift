@@ -74,7 +74,7 @@ class AddToiletViewModel {
         )
 
         do {
-            try await ServiceContainer.shared.toiletService.createToilet(newToilet: newToilet)
+            try await ServiceContainer.shared.toiletService.createToilet(newToilet: newToilet, toiletImage: nil)
             didCreateToilet = true
         } catch let error as APIError {
             switch error {
