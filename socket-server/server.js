@@ -42,8 +42,29 @@ app.get('/me', (req, res) => {
 // ---- Auth: sign up ----
 app.post('/sign-up', async (req, res) => {
     const { username, password } = req.body;
-    if (!username || !password) {
-        return res.status(400).json({ success: false, message: 'Username and password required' });
+
+    if (!username) {
+        return res.status(400).json({ success: false, message: 'Username required' });
+    }
+
+    if (!password) {
+        return res.status(400).json({ success: false, message: 'Password required' });
+    }
+
+    if (username.length < 5) {
+        return res.status(400).json({ success: false, message: 'Username too short' });
+    }
+
+    if (username.length > 15) {
+        return res.status(400).json({ success: false, message: 'Username too long' });
+    }
+
+    if (password.length < 8) {
+        return res.status(400).json({ success: false, message: 'Password too short' });
+    }
+
+    if (password.length > 32) {
+        return res.status(400).json({ success: false, message: 'Password too long' });
     }
 
     const hash = await bcrypt.hash(password, 10);
