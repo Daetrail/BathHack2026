@@ -17,8 +17,7 @@ const storage = multer.diskStorage({
         cb(null, 'uploads/'); // folder to store files
     },
     filename: (req, file, cb) => {
-        const uniqueName = Date.now() + '-' + file.originalname;
-        cb(null, uniqueName);
+        cb(null, file.originalname);
     }
 });
 
@@ -143,24 +142,31 @@ app.get('/get-toilet/:toiletId', (req, res) => {
 
 // ---- Toilets: create new toilet ----
 app.post('/create-toilet', upload.single('image'), (req, res) => {
-    const { toiletName, description, latitude, longitude, isFree } = req.body;
     const userId = getUserIdFromToken(req);
-
     if (!userId) return res.status(401).json({ success: false, message: 'Authentication required' });
+
+    let toiletName, description, latitude, longitude, isFree;
+
+    // Handle both JSON-in-multipart and plain flat fields
+    if (req.body.metadata) {
+        try {
+            const metadata = JSON.parse(req.body.metadata);
+            ({ toiletName, description, latitude, longitude, isFree } = metadata);
+        } catch {
+            return res.status(400).json({ success: false, message: 'Invalid metadata JSON' });
+        }
+    } else {
+        ({ toiletName, description, latitude, longitude, isFree } = req.body);
+    }
+
     if (!toiletName) return res.status(400).json({ success: false, message: 'Toilet name is required' });
     if (!description) return res.status(400).json({ success: false, message: 'Description is required' });
     if (latitude == null) return res.status(400).json({ success: false, message: 'Latitude is required' });
     if (longitude == null) return res.status(400).json({ success: false, message: 'Longitude is required' });
 
-    const file = req.file;
 
-    if (file) {
-        const toiletImageFilename = file.filename;
-        console.log(toiletImageFilename);
-    }
-
-    // Default isFree to true (1) if not provided
-    const freeValue = isFree !== undefined ? (isFree ? 1 : 0) : 1;
+    const freeValue = isFree !== undefined ? (isFree === true || isFree === 'true' ? 1 : 0) : 1;
+    const toiletImageFilename = req.file?.filename ?? null;
 
     try {
         db.prepare(`
@@ -169,7 +175,8 @@ app.post('/create-toilet', upload.single('image'), (req, res) => {
         `).run(userId, toiletName, toiletImageFilename, description, latitude, longitude, 0, freeValue);
 
         res.json({ success: true, message: 'Toilet created successfully' });
-    } catch {
+    } catch (error) {
+        console.log('Actual error: ' + error.message);
         res.status(409).json({ success: false, message: 'A toilet with that name already exists' });
     }
 });

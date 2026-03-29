@@ -27,6 +27,7 @@ db.exec(`
         reviewId INTEGER PRIMARY KEY AUTOINCREMENT,
         toiletId INTEGER NOT NULL,
         userId INTEGER NOT NULL,
+        reviewImageFilename TEXT UNIQUE,
         star INTEGER,
         title TEXT NOT NULL,
         description TEXT NOT NULL,
