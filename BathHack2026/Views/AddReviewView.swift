@@ -6,11 +6,15 @@
 //  Includes a tappable star rating, title, and description fields.
 //
 
+import PhotosUI
 import SwiftUI
 
 struct AddReviewView: View {
     @Bindable var viewModel: ToiletDetailViewModel
     @Environment(\.dismiss) var dismiss
+    @State private var showCamera = false
+    @State private var showPhotosPicker = false
+    @State private var showPhotoSourceDialog = false
 
     var body: some View {
         NavigationStack {
@@ -65,6 +69,51 @@ struct AddReviewView: View {
                             .cornerRadius(10)
                     }
 
+                    // MARK: - Photo section
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Photo (optional)")
+                            .font(.headline)
+
+                        Button {
+                            showPhotoSourceDialog = true
+                        } label: {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color(UIColor.systemGray6))
+                                    .frame(height: 150)
+
+                                if let image = viewModel.reviewSelectedImage {
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(maxHeight: 150)
+                                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                                } else {
+                                    VStack(spacing: 8) {
+                                        Image(systemName: "camera.fill")
+                                            .font(.system(size: 30))
+                                            .foregroundStyle(.secondary)
+                                        Text("Tap to add photo")
+                                            .font(.subheadline)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .confirmationDialog("Add Photo", isPresented: $showPhotoSourceDialog) {
+                            Button("Take Photo") { showCamera = true }
+                            Button("Choose from Library") { showPhotosPicker = true }
+                        }
+
+                        if viewModel.reviewSelectedImage != nil {
+                            Button("Remove Photo", role: .destructive) {
+                                viewModel.reviewSelectedImage = nil
+                                viewModel.reviewSelectedPhoto = nil
+                            }
+                            .font(.caption)
+                        }
+                    }
                     // MARK: - Submit button
                     Button {
                         Task {
@@ -88,6 +137,7 @@ struct AddReviewView: View {
                 .padding(.horizontal, 24)
                 .padding(.top, 8)
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Write a Review")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -101,6 +151,21 @@ struct AddReviewView: View {
                 Button("OK", role: .cancel) {}
             } message: {
                 Text(viewModel.reviewErrorMessage)
+            }
+            .photosPicker(isPresented: $showPhotosPicker, selection: $viewModel.reviewSelectedPhoto, matching: .images)
+            .fullScreenCover(isPresented: $showCamera) {
+                CameraView { image in
+                    viewModel.reviewSelectedImage = image
+                }
+                .ignoresSafeArea()
+            }
+            .onChange(of: viewModel.reviewSelectedPhoto) { _, newItem in
+                Task {
+                    if let data = try? await newItem?.loadTransferable(type: Data.self),
+                       let image = UIImage(data: data) {
+                        viewModel.reviewSelectedImage = image
+                    }
+                }
             }
         }
     }

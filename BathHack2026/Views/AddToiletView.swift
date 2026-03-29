@@ -16,6 +16,9 @@ struct AddToiletView: View {
     @Environment(LocationService.self) var locationService
     @Environment(\.dismiss) var dismiss
     @State private var viewModel = AddToiletViewModel()
+    @State private var showCamera = false
+    @State private var showPhotosPicker = false
+    @State private var showPhotoSourceDialog = false
 
     var body: some View {
         ScrollView {
@@ -158,23 +161,25 @@ struct AddToiletView: View {
                     }
                 }
                 
-                // MARK: - Upload image button
-                
+                // MARK: - Photo section
+
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Photo")
                         .font(.headline)
 
-                    PhotosPicker(selection: $viewModel.selectedPhoto, matching: .images) {
+                    Button {
+                        showPhotoSourceDialog = true
+                    } label: {
                         ZStack {
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color(UIColor.systemGray6))
-                                .frame(height: 120)
+                                .frame(height: 150)
 
                             if let image = viewModel.selectedImage {
                                 Image(uiImage: image)
                                     .resizable()
-                                    .scaledToFill()
-                                    .frame(height: 120)
+                                    .scaledToFit()
+                                    .frame(maxHeight: 150)
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
                             } else {
                                 VStack(spacing: 8) {
@@ -188,13 +193,18 @@ struct AddToiletView: View {
                             }
                         }
                     }
-                }
-                .onChange(of: viewModel.selectedPhoto) { _, newItem in
-                    Task {
-                        if let data = try? await newItem?.loadTransferable(type: Data.self),
-                           let image = UIImage(data: data) {
-                            viewModel.selectedImage = image
+                    .buttonStyle(.plain)
+                    .confirmationDialog("Add Photo", isPresented: $showPhotoSourceDialog) {
+                        Button("Take Photo") { showCamera = true }
+                        Button("Choose from Library") { showPhotosPicker = true }
+                    }
+
+                    if viewModel.selectedImage != nil {
+                        Button("Remove Photo", role: .destructive) {
+                            viewModel.selectedImage = nil
+                            viewModel.selectedPhoto = nil
                         }
+                        .font(.caption)
                     }
                 }
                 
@@ -225,11 +235,27 @@ struct AddToiletView: View {
             .padding(.horizontal, 24)
             .padding(.top, 8)
         }
+        .scrollDismissesKeyboard(.interactively)
         .navigationTitle("Add a Toilet")
         .navigationBarTitleDisplayMode(.large)
         // MARK: - Map picker sheet
         .sheet(isPresented: $viewModel.showMapSheet) {
             mapPickerSheet
+        }
+        .photosPicker(isPresented: $showPhotosPicker, selection: $viewModel.selectedPhoto, matching: .images)
+        .fullScreenCover(isPresented: $showCamera) {
+            CameraView { image in
+                viewModel.selectedImage = image
+            }
+            .ignoresSafeArea()
+        }
+        .onChange(of: viewModel.selectedPhoto) { _, newItem in
+            Task {
+                if let data = try? await newItem?.loadTransferable(type: Data.self),
+                   let image = UIImage(data: data) {
+                    viewModel.selectedImage = image
+                }
+            }
         }
         .alert("Error", isPresented: $viewModel.showError) {
             Button("OK", role: .cancel) {}

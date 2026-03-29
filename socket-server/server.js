@@ -11,6 +11,11 @@ const JWT_SECRET = 'im a chud';
 
 app.use(express.json());
 
+// Ensure uploads directory exists
+if (!fs.existsSync('uploads')) {
+    fs.mkdirSync('uploads');
+}
+
 app.use('/uploads', express.static('uploads'));
 
 // configure storage

@@ -23,7 +23,6 @@ enum SortMode: String, CaseIterable {
 class ListViewModel {
     // MARK: - Navigation
     var navigateToAddToilet = false
-    var selectedToilet: Toilets? = nil
 
     // MARK: - Data
     var toilets: [Toilets] = []
@@ -95,10 +94,6 @@ class ListViewModel {
 
     func goToAddToilet() {
         navigateToAddToilet = true
-    }
-
-    func goToToilet(_ toilet: Toilets) {
-        selectedToilet = toilet
     }
 
     // MARK: - Code Brown

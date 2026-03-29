@@ -13,6 +13,7 @@ struct Reviews: Codable, Hashable, Identifiable {
     let reviewId: Int
     let toiletId: Int
     let reviewImageFilename: String?
+    let imageUrl: String?
     let userCreator: String
     let star: Float
     let title: String

@@ -41,3 +41,12 @@ struct RootView: View {
         }
     }
 }
+
+#Preview {
+    let locationService = LocationService()
+    let appState = AppState()
+    
+    RootView()
+        .environment(locationService)
+        .environment(appState)
+}

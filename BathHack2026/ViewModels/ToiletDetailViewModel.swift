@@ -8,6 +8,7 @@
 
 import CoreLocation
 import MapKit
+import PhotosUI
 import SwiftUI
 
 @Observable
@@ -23,6 +24,8 @@ class ToiletDetailViewModel {
     var reviewStar: Int = 5
     var reviewTitle: String = ""
     var reviewDescription: String = ""
+    var reviewSelectedPhoto: PhotosPickerItem?
+    var reviewSelectedImage: UIImage?
     var isSubmittingReview = false
     var showReviewError = false
     var reviewErrorMessage: String = ""
@@ -82,13 +85,22 @@ class ToiletDetailViewModel {
             description: reviewDescription.trimmingCharacters(in: .whitespaces)
         )
 
+        // Convert selected image to JPEG data for upload
+        let jpegData: Data? = if let reviewSelectedImage {
+            try? makeJPEGData(from: reviewSelectedImage)
+        } else {
+            nil
+        }
+
         do {
-            try await ServiceContainer.shared.reviewService.createReview(newReview: newReview, reviewImage: nil)
+            try await ServiceContainer.shared.reviewService.createReview(newReview: newReview, reviewImage: jpegData)
             didSubmitReview = true
             // Reset the form
             reviewTitle = ""
             reviewDescription = ""
             reviewStar = 5
+            reviewSelectedPhoto = nil
+            reviewSelectedImage = nil
             showAddReview = false
             // Refresh reviews to show the new one
             await loadReviews()

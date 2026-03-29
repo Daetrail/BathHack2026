@@ -16,6 +16,7 @@ struct ToiletView: View {
     @Environment(LocationService.self) var locationService
     @Environment(\.dismiss) var dismiss
     @State private var viewModel: ToiletDetailViewModel
+    @State private var selectedReview: Reviews?
 
     /// Whether the current user owns this toilet
     private var isToiletOwner: Bool {
@@ -30,6 +31,22 @@ struct ToiletView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
+                // MARK: - Toilet photo (if available)
+                if let imageUrl = toilet.imageUrl {
+                    CachedAsyncImage(url: URL(string: Constants.apiUrl + imageUrl)) { image in
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    } placeholder: {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 200)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 200)
+                    .clipped()
+                }
+
                 // MARK: - Mini map showing toilet location
                 miniMap
 
@@ -93,6 +110,10 @@ struct ToiletView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This will permanently delete your review.")
+        }
+        // MARK: - Review detail sheet
+        .sheet(item: $selectedReview) { review in
+            reviewDetailSheet(review)
         }
         // Dismiss view after toilet deletion
         .onChange(of: viewModel.didDeleteToilet) { _, deleted in
@@ -254,18 +275,23 @@ struct ToiletView: View {
                 .padding(.vertical, 24)
             } else {
                 ForEach(viewModel.reviews) { review in
-                    reviewCard(review)
-                        .contextMenu {
-                            // Only show delete option for the current user's reviews
-                            if review.userCreator == appState.username {
-                                Button(role: .destructive) {
-                                    viewModel.reviewToDelete = review
-                                    viewModel.showDeleteReviewConfirmation = true
-                                } label: {
-                                    Label("Delete Review", systemImage: "trash")
-                                }
+                    Button {
+                        selectedReview = review
+                    } label: {
+                        reviewCard(review)
+                    }
+                    .buttonStyle(.plain)
+                    .contextMenu {
+                        // Only show delete option for the current user's reviews
+                        if review.userCreator == appState.username {
+                            Button(role: .destructive) {
+                                viewModel.reviewToDelete = review
+                                viewModel.showDeleteReviewConfirmation = true
+                            } label: {
+                                Label("Delete Review", systemImage: "trash")
                             }
                         }
+                    }
                 }
             }
         }
@@ -299,6 +325,21 @@ struct ToiletView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
+            // Review photo (if available)
+            if let imageUrl = review.imageUrl {
+                CachedAsyncImage(url: URL(string: Constants.apiUrl + imageUrl)) { image in
+                    image
+                        .resizable()
+                        .scaledToFill()
+                } placeholder: {
+                    Color(UIColor.systemGray5)
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 150)
+                .clipped()
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+
             Text(review.formattedDate)
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
@@ -306,6 +347,73 @@ struct ToiletView: View {
         .padding()
         .background(Color(UIColor.systemGray6))
         .cornerRadius(10)
+    }
+
+    // MARK: - Review Detail Sheet
+
+    /// Full-screen view of a review with full-size image and complete text
+    private func reviewDetailSheet(_ review: Reviews) -> some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    // Full-size review image
+                    if let imageUrl = review.imageUrl {
+                        CachedAsyncImage(url: URL(string: Constants.apiUrl + imageUrl)) { image in
+                            image
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxWidth: .infinity)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                        } placeholder: {
+                            ProgressView()
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 200)
+                        }
+                    }
+
+                    // Star rating + author
+                    HStack {
+                        HStack(spacing: 4) {
+                            ForEach(1...5, id: \.self) { star in
+                                Image(systemName: Float(star) <= review.star ? "star.fill" : "star")
+                                    .font(.title3)
+                                    .foregroundStyle(.yellow)
+                            }
+                        }
+
+                        Spacer()
+
+                        Text("@\(review.userCreator)")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    // Title
+                    Text(review.title)
+                        .font(.title3.bold())
+
+                    // Full description (no line limit)
+                    Text(review.description)
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+
+                    // Date
+                    Text(review.formattedDate)
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+                .padding()
+            }
+            .navigationTitle("Review")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") {
+                        selectedReview = nil
+                    }
+                }
+            }
+        }
     }
 
     /// Star rating display

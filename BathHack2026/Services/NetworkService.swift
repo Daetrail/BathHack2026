@@ -36,9 +36,9 @@ final class NetworkService {
         
         let boundary = Boundary.random()
         let formData = try MultipartFormData(boundary: boundary) {
-            // JSON body
+            // JSON body sent as "metadata" — the backend parses this field
             Subpart {
-                ContentDisposition(name: "jsonData")
+                ContentDisposition(name: "metadata")
                 ContentType(mediaType: .applicationJson)
             } body: {
                 jsonData
@@ -64,6 +64,9 @@ final class NetworkService {
         if let token {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
+
+        // Required for ngrok free tier to skip the browser interstitial page
+        request.setValue("true", forHTTPHeaderField: "ngrok-skip-browser-warning")
         
         request.httpMethod = "POST"
         

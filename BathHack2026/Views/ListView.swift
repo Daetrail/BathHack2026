@@ -17,20 +17,24 @@ struct ListView: View {
     @State private var viewModel = ListViewModel()
 
     /// Toggle between map and list display modes
-    enum ViewMode: String, CaseIterable {
-        case map = "Map"
-        case list = "List"
+    enum ViewMode: CaseIterable, Hashable {
+        case map
+        case list
     }
     @State private var viewMode: ViewMode = .map
+    @State private var navigationPath = NavigationPath()
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             VStack(spacing: 0) {
                 // MARK: - Header bar
                 headerBar
 
-                // MARK: - View mode picker + sort controls
-                controlsBar
+                // MARK: - View mode picker (isolated to avoid re-render on data load)
+                viewModePicker
+
+                // MARK: - Sort controls
+                sortControls
 
                 // MARK: - Content (Map or List)
                 if viewModel.isLoading && viewModel.toilets.isEmpty {
@@ -50,7 +54,7 @@ struct ListView: View {
             .navigationDestination(isPresented: $viewModel.navigateToAddToilet) {
                 AddToiletView()
             }
-            .navigationDestination(item: $viewModel.selectedToilet) { toilet in
+            .navigationDestination(for: Toilets.self) { toilet in
                 ToiletView(toilet: toilet)
             }
             .toolbar(.hidden, for: .navigationBar)
@@ -63,7 +67,7 @@ struct ListView: View {
             }
             // Use .onAppear so toilets reload when navigating back
             // from AddToiletView or ToiletView (where reviews change avgStar)
-            .onAppear {
+            .onAppear {                
                 Task { await viewModel.loadToilets() }
             }
             .refreshable {
@@ -76,7 +80,9 @@ struct ListView: View {
                         openDirections(to: viewModel.codeBrownToilet!)
                     }
                     Button("View Details") {
-                        viewModel.selectedToilet = viewModel.codeBrownToilet
+                        if let toilet = viewModel.codeBrownToilet {
+                            navigationPath.append(toilet)
+                        }
                     }
                     Button("Cancel", role: .cancel) {}
                 }
@@ -106,7 +112,8 @@ struct ListView: View {
             }
             .padding(10)
             .background(Color(UIColor.systemGray6))
-            .cornerRadius(10)
+            .cornerRadius(20)
+            .glassEffect()
 
             // Code Brown emergency button
             Button {
@@ -144,52 +151,49 @@ struct ListView: View {
         .padding(.vertical, 8)
     }
 
-    // MARK: - Controls Bar (picker + sort)
+    // MARK: - View Mode Picker (isolated from observable data)
 
-    private var controlsBar: some View {
-        VStack(spacing: 6) {
-            // Map/List toggle
-            Picker("View Mode", selection: $viewMode) {
-                ForEach(ViewMode.allCases, id: \.self) { mode in
-                    Label(mode.rawValue, systemImage: mode == .map ? "map" : "list.bullet")
-                        .tag(mode)
-                }
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
+    private var viewModePicker: some View {
+        Picker("View Mode", selection: $viewMode) {
+            Text("Map").tag(ViewMode.map)
+            Text("List").tag(ViewMode.list)
+        }
+        .zIndex(1)
+        .pickerStyle(.segmented)
+        .padding(.horizontal)
+    }
 
-            // Sort menu + count
-            HStack {
-                Menu {
-                    ForEach(SortMode.allCases, id: \.self) { mode in
-                        Button {
-                            viewModel.sortMode = mode
-                        } label: {
-                            if viewModel.sortMode == mode {
-                                Label(mode.rawValue, systemImage: "checkmark")
-                            } else {
-                                Text(mode.rawValue)
-                            }
+    // MARK: - Sort Controls
+    private var sortControls: some View {
+        HStack {
+            Menu {
+                ForEach(SortMode.allCases, id: \.self) { mode in
+                    Button {
+                        viewModel.sortMode = mode
+                    } label: {
+                        if viewModel.sortMode == mode {
+                            Label(mode.rawValue, systemImage: "checkmark")
+                        } else {
+                            Text(mode.rawValue)
                         }
                     }
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: "arrow.up.arrow.down")
-                        Text(viewModel.sortMode.rawValue)
-                    }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
                 }
-
-                Spacer()
-
-                Text("\(viewModel.filteredToilets.count) toilet\(viewModel.filteredToilets.count == 1 ? "" : "s")")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: "arrow.up.arrow.down")
+                    Text(viewModel.sortMode.rawValue)
+                }
+                .font(.caption)
             }
-            .padding(.horizontal)
+
+            Spacer()
+
+            Text("\(viewModel.filteredToilets.count) toilet\(viewModel.filteredToilets.count == 1 ? "" : "s")")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
-        .padding(.bottom, 4)
+        .padding(.horizontal)
+        .padding(.vertical, 8)
     }
 
     // MARK: - Map Content
@@ -269,8 +273,8 @@ struct ListView: View {
                 Spacer()
 
                 Button {
-                    viewModel.selectedToilet = toilet
                     viewModel.selectedMapToiletId = nil
+                    navigationPath.append(toilet)
                 } label: {
                     Text("Details")
                         .font(.subheadline.bold())
@@ -307,12 +311,12 @@ struct ListView: View {
                         ? "Be the first to add a toilet!"
                         : "Try a different search term.")
                 )
-                
+                .containerRelativeFrame(.vertical)
             } else {
                 LazyVStack(spacing: 12) {
                     ForEach(viewModel.filteredToilets) { toilet in
                         Button {
-                            viewModel.goToToilet(toilet)
+                            navigationPath.append(toilet)
                         } label: {
                             toiletCard(toilet)
                         }
@@ -328,6 +332,21 @@ struct ListView: View {
     /// Card view for a toilet in the list
     private func toiletCard(_ toilet: Toilets) -> some View {
         VStack(alignment: .leading, spacing: 8) {
+            // Toilet photo thumbnail (if available)
+            if let imageUrl = toilet.imageUrl {
+                CachedAsyncImage(url: URL(string: Constants.apiUrl + imageUrl)) { image in
+                    image
+                        .resizable()
+                        .scaledToFill()
+                } placeholder: {
+                    Color(UIColor.systemGray5)
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 120)
+                .clipped()
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+
             // Top row: name + rating badge
             HStack {
                 // Status icon based on rating
@@ -385,6 +404,7 @@ struct ListView: View {
         .padding()
         .background(Color(UIColor.systemGray6))
         .cornerRadius(12)
+        .contentShape(Rectangle())
     }
 
     // MARK: - Helpers

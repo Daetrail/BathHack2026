@@ -73,8 +73,15 @@ class AddToiletViewModel {
             isFree: isFree
         )
 
+        // Convert selected image to JPEG data for upload
+        let jpegData: Data? = if let selectedImage {
+            try? makeJPEGData(from: selectedImage)
+        } else {
+            nil
+        }
+
         do {
-            try await ServiceContainer.shared.toiletService.createToilet(newToilet: newToilet, toiletImage: nil)
+            try await ServiceContainer.shared.toiletService.createToilet(newToilet: newToilet, toiletImage: jpegData)
             didCreateToilet = true
         } catch let error as APIError {
             switch error {
