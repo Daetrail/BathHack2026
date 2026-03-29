@@ -24,6 +24,27 @@ struct Toilets: Codable, Hashable, Identifiable {
 
     var id: Int { toiletId }
 
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        toiletId = try container.decode(Int.self, forKey: .toiletId)
+        userCreator = try container.decode(String.self, forKey: .userCreator)
+        toiletName = try container.decode(String.self, forKey: .toiletName)
+        toiletImageFilename = try container.decodeIfPresent(String.self, forKey: .toiletImageFilename)
+        imageUrl = try container.decodeIfPresent(String.self, forKey: .imageUrl)
+        aiDescription = try container.decodeIfPresent(String.self, forKey: .aiDescription)
+        description = try container.decode(String.self, forKey: .description)
+        latitude = try container.decode(String.self, forKey: .latitude)
+        longitude = try container.decode(String.self, forKey: .longitude)
+        avgStar = try container.decode(Float.self, forKey: .avgStar)
+        // Handle both Bool (true/false) and Int (0/1) from SQL backends
+        if let boolValue = try? container.decode(Bool.self, forKey: .isFree) {
+            isFree = boolValue
+        } else {
+            let intValue = try container.decode(Int.self, forKey: .isFree)
+            isFree = intValue != 0
+        }
+    }
+
     /// Convert stored lat/long strings to a MapKit-compatible coordinate
     var coordinate: CLLocationCoordinate2D {
         CLLocationCoordinate2D(

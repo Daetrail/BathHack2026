@@ -94,6 +94,7 @@ final class NetworkService {
         
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
+        request.cachePolicy = .reloadIgnoringLocalCacheData
         
         if let token {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
