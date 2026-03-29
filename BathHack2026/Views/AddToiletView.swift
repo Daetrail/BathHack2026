@@ -90,6 +90,7 @@ struct AddToiletView: View {
                                     .opacity(viewModel.lockForLocationRequest ? 0 : 1)
 
                                 ProgressView()
+                                    .controlSize(.small)
                                     .opacity(viewModel.lockForLocationRequest ? 1 : 0)
                             }
                             .font(.caption)

@@ -28,6 +28,16 @@ class ToiletDetailViewModel {
     var reviewErrorMessage: String = ""
     var didSubmitReview = false
 
+    // MARK: - Delete toilet
+    var showDeleteToiletConfirmation = false
+    var isDeletingToilet = false
+    var didDeleteToilet = false
+
+    // MARK: - Delete review
+    var reviewToDelete: Reviews?
+    var showDeleteReviewConfirmation = false
+    var isDeletingReview = false
+
     // MARK: - General
     var showError = false
     var errorMessage: String = ""
@@ -103,6 +113,53 @@ class ToiletDetailViewModel {
         destination.openInMaps(launchOptions: [
             MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking
         ])
+    }
+
+    // MARK: - Delete toilet
+
+    /// Delete this toilet from the backend (owner only).
+    /// The database uses ON DELETE CASCADE, so all reviews for this toilet
+    /// are automatically removed when the toilet is deleted.
+    func deleteToilet() async {
+        isDeletingToilet = true
+        defer { isDeletingToilet = false }
+
+        do {
+            try await ServiceContainer.shared.toiletService.deleteToilet(toiletId: toilet.toiletId)
+            didDeleteToilet = true
+        } catch let error as APIError {
+            switch error {
+            case .serverError(let message):
+                errorMessage = message
+            }
+            showError = true
+        } catch {
+            errorMessage = "Failed to delete toilet."
+            showError = true
+        }
+    }
+
+    // MARK: - Delete review
+
+    /// Delete a specific review (owner only)
+    func deleteReview(_ review: Reviews) async {
+        isDeletingReview = true
+        defer { isDeletingReview = false }
+
+        do {
+            try await ServiceContainer.shared.reviewService.deleteReview(reviewId: review.reviewId)
+            // Refresh reviews list after deletion
+            await loadReviews()
+        } catch let error as APIError {
+            switch error {
+            case .serverError(let message):
+                errorMessage = message
+            }
+            showError = true
+        } catch {
+            errorMessage = "Failed to delete review."
+            showError = true
+        }
     }
 
     /// Distance string from the user's location to this toilet

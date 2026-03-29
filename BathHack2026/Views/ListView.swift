@@ -53,6 +53,7 @@ struct ListView: View {
             .navigationDestination(item: $viewModel.selectedToilet) { toilet in
                 ToiletView(toilet: toilet)
             }
+            .toolbar(.hidden, for: .navigationBar)
             // MARK: - Load data
             // Use .task for the one-time location fetch
             .task {

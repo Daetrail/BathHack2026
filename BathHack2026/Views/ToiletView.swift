@@ -12,8 +12,15 @@ import SwiftUI
 
 struct ToiletView: View {
     let toilet: Toilets
+    @Environment(AppState.self) var appState
     @Environment(LocationService.self) var locationService
+    @Environment(\.dismiss) var dismiss
     @State private var viewModel: ToiletDetailViewModel
+
+    /// Whether the current user owns this toilet
+    private var isToiletOwner: Bool {
+        appState.username == toilet.userCreator
+    }
 
     init(toilet: Toilets) {
         self.toilet = toilet
@@ -42,6 +49,19 @@ struct ToiletView: View {
         }
         .navigationTitle(toilet.toiletName)
         .navigationBarTitleDisplayMode(.inline)
+        // MARK: - Toolbar delete button (owner only)
+        .toolbar {
+            if isToiletOwner {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(role: .destructive) {
+                        viewModel.showDeleteToiletConfirmation = true
+                    } label: {
+                        Image(systemName: "trash")
+                            .foregroundStyle(.red)
+                    }
+                }
+            }
+        }
         .task {
             await viewModel.loadReviews()
         }
@@ -53,6 +73,30 @@ struct ToiletView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text(viewModel.errorMessage)
+        }
+        // MARK: - Delete toilet confirmation
+        .alert("Delete Toilet?", isPresented: $viewModel.showDeleteToiletConfirmation) {
+            Button("Delete", role: .destructive) {
+                Task { await viewModel.deleteToilet() }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will permanently delete \"\(toilet.toiletName)\" and all its reviews. This cannot be undone.")
+        }
+        // MARK: - Delete review confirmation
+        .alert("Delete Review?", isPresented: $viewModel.showDeleteReviewConfirmation) {
+            Button("Delete", role: .destructive) {
+                if let review = viewModel.reviewToDelete {
+                    Task { await viewModel.deleteReview(review) }
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will permanently delete your review.")
+        }
+        // Dismiss view after toilet deletion
+        .onChange(of: viewModel.didDeleteToilet) { _, deleted in
+            if deleted { dismiss() }
         }
     }
 
@@ -211,6 +255,17 @@ struct ToiletView: View {
             } else {
                 ForEach(viewModel.reviews) { review in
                     reviewCard(review)
+                        .contextMenu {
+                            // Only show delete option for the current user's reviews
+                            if review.userCreator == appState.username {
+                                Button(role: .destructive) {
+                                    viewModel.reviewToDelete = review
+                                    viewModel.showDeleteReviewConfirmation = true
+                                } label: {
+                                    Label("Delete Review", systemImage: "trash")
+                                }
+                            }
+                        }
                 }
             }
         }

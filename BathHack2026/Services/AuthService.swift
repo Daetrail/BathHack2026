@@ -61,17 +61,17 @@ final class AuthService {
     }
 
     /// Verify whether the current token is still valid with the server.
-    /// The token is sent via the Authorization header (set by NetworkService).
-    func isAuthenticated() async throws -> Bool {
+    /// Returns the username if valid, nil otherwise.
+    func isAuthenticated() async throws -> String? {
         guard networkService.token != nil else {
-            return false
+            return nil
         }
 
         // /me is a GET endpoint that checks the Bearer token in the header
         let data = try await networkService.get("/me")
         let response = try parseCodable(type: AuthResponse.self, from: data)
 
-        return response.success
+        return response.success ? response.username : nil
     }
 
     /// Restore the saved token from keychain into the network service.

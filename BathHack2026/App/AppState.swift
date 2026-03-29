@@ -35,8 +35,12 @@ final class AppState {
         }
 
         do {
-            let isValid = try await services.authService.isAuthenticated()
-            authState = isValid ? .authenticated : .unauthenticated
+            if let restoredUsername = try await services.authService.isAuthenticated() {
+                username = restoredUsername
+                authState = .authenticated
+            } else {
+                authState = .unauthenticated
+            }
         } catch {
             // Network error — be optimistic and let the user in.
             // Individual API calls will handle auth failures gracefully.
