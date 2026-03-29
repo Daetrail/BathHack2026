@@ -71,7 +71,9 @@ struct ListView: View {
                 Task { await viewModel.loadToilets() }
             }
             .refreshable {
-                await viewModel.loadToilets()
+                await Task {
+                    await viewModel.loadToilets()
+                }.value
             }
             // MARK: - Code Brown alert
             .alert("Code Brown!", isPresented: $viewModel.showCodeBrownAlert) {
