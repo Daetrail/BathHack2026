@@ -28,13 +28,13 @@ struct RegisterView: View {
                     .textInputAutocapitalization(.never)
                     .padding()
                     .background(Color(UIColor.systemGray6))
-                    .cornerRadius(10)
+                    .cornerRadius(20)
 
                 SecureField("Password", text: $viewModel.passwordInput)
                     .textContentType(.newPassword)
                     .padding()
                     .background(Color(UIColor.systemGray6))
-                    .cornerRadius(10)
+                    .cornerRadius(20)
 
                 Button {
                     Task {
