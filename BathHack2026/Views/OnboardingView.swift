@@ -39,7 +39,6 @@ struct OnboardingView: View {
                         viewModel.goToSignIn()
                     } label: {
                         Text("Sign In")
-                            .font(.title3)
                             .frame(maxWidth: .infinity)
                     }
                     .frame(width: 120, height: 56)
@@ -49,7 +48,6 @@ struct OnboardingView: View {
                         viewModel.goToRegister()
                     } label: {
                         Text("Register")
-                            .font(.title3)
                             .frame(maxWidth: .infinity)
                     }
                     .frame(width: 120, height: 56)

@@ -27,14 +27,12 @@ struct RegisterView: View {
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
                     .padding()
-                    .background(Color(UIColor.systemGray6))
-                    .cornerRadius(20)
+                    .glassEffect()
 
                 SecureField("Password", text: $viewModel.passwordInput)
                     .textContentType(.newPassword)
                     .padding()
-                    .background(Color(UIColor.systemGray6))
-                    .cornerRadius(20)
+                    .glassEffect()
 
                 Button {
                     Task {
@@ -43,13 +41,12 @@ struct RegisterView: View {
                 } label: {
                     ZStack {
                         Text("Register")
-                            .font(.system(size: 20))
                             .opacity(viewModel.isLoading ? 0 : 1)
 
                         ProgressView()
                             .opacity(viewModel.isLoading ? 1 : 0)
                     }
-                    .frame(maxWidth: .infinity)
+                    .padding(3)
                 }
                 .frame(height: 56)
                 .buttonStyle(.glassProminent)

@@ -27,14 +27,12 @@ struct SignInView: View {
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
                     .padding()
-                    .background(Color(UIColor.systemGray6))
-                    .cornerRadius(20)
+                    .glassEffect()
 
                 SecureField("Password", text: $viewModel.passwordInput)
                     .textContentType(.password)
                     .padding()
-                    .background(Color(UIColor.systemGray6))
-                    .cornerRadius(20)
+                    .glassEffect()
 
                 Button {
                     Task {
@@ -42,14 +40,13 @@ struct SignInView: View {
                     }
                 } label: {
                     ZStack {
-                        Text("Sign In")
-                            .font(.system(size: 20))
+                        Text("Sign In")                            
                             .opacity(viewModel.isLoading ? 0 : 1)
 
                         ProgressView()
                             .opacity(viewModel.isLoading ? 1 : 0)
                     }
-                    .frame(maxWidth: .infinity)
+                    .padding(3)
                 }
                 .frame(height: 56)
                 .buttonStyle(.glassProminent)
