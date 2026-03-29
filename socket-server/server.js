@@ -190,8 +190,13 @@ app.delete('/delete-toilet', (req, res) => {
 
     const toilet = db.prepare('SELECT * FROM toilets WHERE toiletId = ?').get(toiletId);
     if (!toilet) return res.status(404).json({ success: false, message: 'Toilet not found' });
-    if (toilet.userId !== userId) {
-        return res.status(403).json({ success: false, message: 'Not your toilet to delete' });
+    if (toilet.userId !== userId) return res.status(403).json({ success: false, message: 'Not your toilet to delete' });
+
+    if (toilet.toiletImageFilename) {
+        const filePath = path.join(__dirname, 'uploads', toilet.toiletImageFilename);
+        fs.unlink(filePath, (err) => {
+            if (err) console.log('Could not delete image: ' + err.message);
+        });
     }
 
     db.prepare('DELETE FROM toilets WHERE toiletId = ?').run(toiletId);
@@ -248,19 +253,20 @@ app.delete('/delete-review', (req, res) => {
 
     const review = db.prepare('SELECT * FROM reviews WHERE reviewId = ?').get(reviewId);
     if (!review) return res.status(404).json({ success: false, message: 'Review not found' });
-    if (review.userId !== userId) {
-        return res.status(403).json({ success: false, message: 'Not your review to delete' });
+    if (review.userId !== userId) return res.status(403).json({ success: false, message: 'Not your review to delete' });
+
+    if (review.reviewImageFilename) {
+        const filePath = path.join(__dirname, 'uploads', review.reviewImageFilename);
+        fs.unlink(filePath, (err) => {
+            if (err) console.log('Could not delete image: ' + err.message);
+        });
     }
 
     db.prepare('DELETE FROM reviews WHERE reviewId = ?').run(reviewId);
 
-    // Recalculate average star rating after deletion
-    const { toiletId } = review;
-    const result = db.prepare(
-        'SELECT ROUND(AVG(star), 1) as avgStar FROM reviews WHERE toiletId = ?'
-    ).get(toiletId);
+    const result = db.prepare('SELECT ROUND(AVG(star), 1) as avgStar FROM reviews WHERE toiletId = ?').get(review.toiletId);
     const newAvg = result.avgStar ?? 0;
-    db.prepare('UPDATE toilets SET avgStar = ? WHERE toiletId = ?').run(newAvg, toiletId);
+    db.prepare('UPDATE toilets SET avgStar = ? WHERE toiletId = ?').run(newAvg, review.toiletId);
 
     res.json({ success: true, message: 'Review deleted' });
 });
