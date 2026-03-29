@@ -2,11 +2,25 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const db = require('./database');
+const multer = require('multer');
 
 const app = express();
 const JWT_SECRET = 'im a chud';
 
 app.use(express.json());
+
+// configure storage
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/'); // folder to store files
+    },
+    filename: (req, file, cb) => {
+        const uniqueName = Date.now() + '-' + file.originalname;
+        cb(null, uniqueName);
+    }
+});
+
+const upload = multer({ storage });
 
 // ---- Helper: extract userId from JWT in Authorization header ----
 function getUserIdFromToken(req) {
@@ -123,7 +137,7 @@ app.get('/get-toilet/:toiletId', (req, res) => {
 
 // ---- Toilets: create new toilet ----
 app.post('/create-toilet', (req, res) => {
-    const { toiletName, description, latitude, longitude, isFree } = req.body;
+    const { toiletName, toiletImageFilename, description, latitude, longitude, isFree } = req.body;
     const userId = getUserIdFromToken(req);
 
     if (!userId) return res.status(401).json({ success: false, message: 'Authentication required' });
@@ -137,9 +151,9 @@ app.post('/create-toilet', (req, res) => {
 
     try {
         db.prepare(`
-            INSERT INTO toilets (userId, toiletName, description, latitude, longitude, avgStar, isFree)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        `).run(userId, toiletName, description, latitude, longitude, 0, freeValue);
+            INSERT INTO toilets (userId, toiletName, toiletImageFilename, description, latitude, longitude, avgStar, isFree)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(userId, toiletName, toiletImageFilename, description, latitude, longitude, 0, freeValue);
 
         res.json({ success: true, message: 'Toilet created successfully' });
     } catch {

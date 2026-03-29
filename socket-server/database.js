@@ -14,6 +14,7 @@ db.exec(`
         toiletId INTEGER PRIMARY KEY AUTOINCREMENT,
         userId INTEGER NOT NULL,
         toiletName TEXT UNIQUE NOT NULL,
+        toiletImageFilename TEXT UNIQUE,
         description TEXT NOT NULL,
         latitude TEXT NOT NULL,
         longitude TEXT NOT NULL,
