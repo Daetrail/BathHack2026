@@ -9,6 +9,8 @@ const JWT_SECRET = 'im a chud';
 
 app.use(express.json());
 
+app.use('/uploads', express.static('uploads'));
+
 // configure storage
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -115,7 +117,11 @@ app.get('/get-toilets', (req, res) => {
     `).all();
 
     // Convert isFree from integer (0/1) to boolean for the client
-    const mapped = toilets.map(t => ({ ...t, isFree: !!t.isFree }));
+    const mapped = toilets.map(t => ({ ...t, isFree: !!t.isFree,
+        imageUrl: t.toiletImageFilename
+            ? `/uploads/${t.toiletImageFilename}`
+            : null
+    }));
     res.json({ success: true, toilets: mapped });
 });
 
@@ -136,8 +142,8 @@ app.get('/get-toilet/:toiletId', (req, res) => {
 });
 
 // ---- Toilets: create new toilet ----
-app.post('/create-toilet', (req, res) => {
-    const { toiletName, toiletImageFilename, description, latitude, longitude, isFree } = req.body;
+app.post('/create-toilet', upload.single('image'), (req, res) => {
+    const { toiletName, description, latitude, longitude, isFree } = req.body;
     const userId = getUserIdFromToken(req);
 
     if (!userId) return res.status(401).json({ success: false, message: 'Authentication required' });
@@ -145,6 +151,13 @@ app.post('/create-toilet', (req, res) => {
     if (!description) return res.status(400).json({ success: false, message: 'Description is required' });
     if (latitude == null) return res.status(400).json({ success: false, message: 'Latitude is required' });
     if (longitude == null) return res.status(400).json({ success: false, message: 'Longitude is required' });
+
+    const file = req.file;
+
+    if (file) {
+        const toiletImageFilename = file.filename;
+        console.log(toiletImageFilename);
+    }
 
     // Default isFree to true (1) if not provided
     const freeValue = isFree !== undefined ? (isFree ? 1 : 0) : 1;
