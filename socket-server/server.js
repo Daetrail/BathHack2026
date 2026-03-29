@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const db = require('./database');
 const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const JWT_SECRET = 'im a chud';
@@ -117,7 +119,7 @@ app.get('/get-toilets', (req, res) => {
 
     // Convert isFree from integer (0/1) to boolean for the client
     const mapped = toilets.map(t => ({ ...t, isFree: !!t.isFree,
-        imageUrl: t.toiletImageFilename
+        imageUrl: t.toiletImageFilename && t.toiletImageFilename !== 'empty'
             ? `/uploads/${t.toiletImageFilename}`
             : null
     }));
@@ -166,7 +168,7 @@ app.post('/create-toilet', upload.single('image'), (req, res) => {
 
 
     const freeValue = isFree !== undefined ? (isFree === true || isFree === 'true' ? 1 : 0) : 1;
-    const toiletImageFilename = req.file?.filename ?? null;
+    const toiletImageFilename = req.file?.filename ?? 'empty';
 
     try {
         db.prepare(`
@@ -192,7 +194,7 @@ app.delete('/delete-toilet', (req, res) => {
     if (!toilet) return res.status(404).json({ success: false, message: 'Toilet not found' });
     if (toilet.userId !== userId) return res.status(403).json({ success: false, message: 'Not your toilet to delete' });
 
-    if (toilet.toiletImageFilename) {
+    if (toilet.toiletImageFilename && toilet.toiletImageFilename !== 'empty') {
         const filePath = path.join(__dirname, 'uploads', toilet.toiletImageFilename);
         fs.unlink(filePath, (err) => {
             if (err) console.log('Could not delete image: ' + err.message);
@@ -231,7 +233,7 @@ app.post('/create-review', upload.single('image'), (req, res) => {
     const existing = db.prepare('SELECT * FROM reviews WHERE toiletId = ? AND userId = ?').get(toiletId, userId);
     if (existing) return res.status(409).json({ success: false, message: 'You already reviewed this toilet' });
 
-    const reviewImageFilename = req.file?.filename ?? null;
+    const reviewImageFilename = req.file?.filename ?? 'empty';
 
     db.prepare(`
         INSERT INTO reviews (toiletId, userId, star, title, description, reviewImageFilename)
@@ -255,7 +257,7 @@ app.delete('/delete-review', (req, res) => {
     if (!review) return res.status(404).json({ success: false, message: 'Review not found' });
     if (review.userId !== userId) return res.status(403).json({ success: false, message: 'Not your review to delete' });
 
-    if (review.reviewImageFilename) {
+    if (review.reviewImageFilename && review.reviewImageFilename !== 'empty') {
         const filePath = path.join(__dirname, 'uploads', review.reviewImageFilename);
         fs.unlink(filePath, (err) => {
             if (err) console.log('Could not delete image: ' + err.message);
@@ -296,7 +298,7 @@ app.get('/get-reviews', (req, res) => {
 
         const mapped = reviews.map(r => ({
             ...r,
-            imageUrl: r.reviewImageFilename
+            imageUrl: r.reviewImageFilename && r.reviewImageFilename !== 'empty'
                 ? `/uploads/${r.reviewImageFilename}`
                 : null
         }));
