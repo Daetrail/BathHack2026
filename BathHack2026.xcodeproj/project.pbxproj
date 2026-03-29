@@ -275,6 +275,7 @@
 				DEVELOPMENT_TEAM = 35CU33M6X2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Find My Toilet";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Your camera is used to take photos of the toilet facilities";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to set your entry's coordinates";
@@ -311,6 +312,7 @@
 				DEVELOPMENT_TEAM = 35CU33M6X2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Find My Toilet";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Your camera is used to take photos of the toilet facilities";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to set your entry's coordinates";
