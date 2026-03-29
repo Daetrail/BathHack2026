@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		D108B1592F77E2010092E446 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = D108B1582F77E1FD0092E446 /* .gitignore */; };
 		D108B15B2F77E2660092E446 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = D108B15A2F77E2620092E446 /* README.md */; };
+		D144E7532F78B79200F2E16E /* MultipartFormData in Frameworks */ = {isa = PBXBuildFile; productRef = D144E7522F78B79200F2E16E /* MultipartFormData */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D144E7532F78B79200F2E16E /* MultipartFormData in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,6 +76,7 @@
 			);
 			name = BathHack2026;
 			packageProductDependencies = (
+				D144E7522F78B79200F2E16E /* MultipartFormData */,
 			);
 			productName = BathHack2026;
 			productReference = D108B13C2F77E0B40092E446 /* BathHack2026.app */;
@@ -104,6 +107,7 @@
 			mainGroup = D108B1332F77E0B40092E446;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				D144E7512F78B79200F2E16E /* XCRemoteSwiftPackageReference "swift-multipart-formdata" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D108B13D2F77E0B40092E446 /* Products */;
@@ -349,6 +353,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D144E7512F78B79200F2E16E /* XCRemoteSwiftPackageReference "swift-multipart-formdata" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/FelixHerrmann/swift-multipart-formdata.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D144E7522F78B79200F2E16E /* MultipartFormData */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D144E7512F78B79200F2E16E /* XCRemoteSwiftPackageReference "swift-multipart-formdata" */;
+			productName = MultipartFormData;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D108B1342F77E0B40092E446 /* Project object */;
 }

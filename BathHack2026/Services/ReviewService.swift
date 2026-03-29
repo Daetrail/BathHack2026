@@ -44,8 +44,13 @@ final class ReviewService {
     }
 
     /// Submit a new review for a toilet
-    func createReview(newReview: NewReview) async throws {
-        let data = try await networkService.post("/create-review", newReview)
+    func createReview(newReview: NewReview, reviewImage: Data?) async throws {
+        var imageFilename: String? = nil
+        if reviewImage != nil {
+            imageFilename = UUID().uuidString + ".jpg"
+        }
+        
+        let data = try await networkService.postWithJpeg("/create-review", newReview, jpegFilename: imageFilename, jpegData: reviewImage)
         let response = try parseCodable(type: ReviewPayload.self, from: data)
 
         guard response.success else {
