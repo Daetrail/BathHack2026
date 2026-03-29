@@ -44,8 +44,13 @@ final class ToiletService {
     }
 
     /// Create a new toilet listing on the server
-    func createToilet(newToilet: NewToilet) async throws {
-        let data = try await networkService.post("/create-toilet", newToilet)
+    func createToilet(newToilet: NewToilet, toiletImage: Data?) async throws {
+        var imageFilename: String? = nil
+        if toiletImage != nil {
+            imageFilename = UUID().uuidString + ".jpg"
+        }
+        
+        let data = try await networkService.postWithJpeg("/create-toilet", newToilet, jpegFilename: imageFilename, jpegData: toiletImage)
         let response = try parseCodable(type: ToiletPayload.self, from: data)
 
         guard response.success else {

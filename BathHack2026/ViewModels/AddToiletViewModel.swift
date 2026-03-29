@@ -28,7 +28,7 @@ class AddToiletViewModel {
     var showMapSheet = false
     var mapCameraPosition: MapCameraPosition = .region(
         MKCoordinateRegion(
-            center: CLLocationCoordinate2D(latitude: 51.3811, longitude: -2.3590), // Sane defaults for the map when opening without 
+            center: CLLocationCoordinate2D(latitude: 51.3811, longitude: -2.3590), // Sane defaults for the map when opening without finding user location
             span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
         )
     )

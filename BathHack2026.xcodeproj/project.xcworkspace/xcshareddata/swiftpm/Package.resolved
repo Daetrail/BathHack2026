@@ -1,0 +1,15 @@
+{
+  "originHash" : "b6dfa0346a4d0cedfaeffc2e1792cc9842cb2a069d0a3378037ea4b171e1aa4e",
+  "pins" : [
+    {
+      "identity" : "swift-multipart-formdata",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/FelixHerrmann/swift-multipart-formdata.git",
+      "state" : {
+        "revision" : "fe9abe3e0ed34bb0e298bc7965e48e2842fb7c83",
+        "version" : "1.5.1"
+      }
+    }
+  ],
+  "version" : 3
+}

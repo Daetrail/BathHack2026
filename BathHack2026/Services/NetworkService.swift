@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import MultipartFormData
 
 enum HTTPMethod: String {
     case get = "GET"
@@ -28,6 +29,51 @@ final class NetworkService {
     
     func post(_ path: String, _ body: some Encodable) async throws -> Data {
         return try await execute(.post, path: path, body: body)
+    }
+    
+    func postWithJpeg(_ path: String, _ body: some Encodable, jpegFilename: String?, jpegData: Data?) async throws -> Data {
+        let jsonData = try JSONEncoder().encode(body)
+        
+        let boundary = Boundary.random()
+        let formData = try MultipartFormData(boundary: boundary) {
+            // JSON body
+            Subpart {
+                ContentDisposition(name: "jsonData")
+                ContentType(mediaType: .applicationJson)
+            } body: {
+                jsonData
+            }
+            
+            // JPEG body
+            if let jpegFilename, let jpegData {
+                try Subpart {
+                    try ContentDisposition(uncheckedName: "image", uncheckedFilename: jpegFilename)
+                    ContentType(mediaType: .imageJpeg)
+                } body: {
+                    jpegData
+                }
+            }
+        }
+        
+        guard let url = URL(string: baseURL + path) else {
+            throw URLError(.badURL)
+        }
+        
+        var request = URLRequest(url: url, multipartFormData: formData)
+        
+        if let token {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        request.httpMethod = "POST"
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        if let http = response as? HTTPURLResponse, http.statusCode >= 500 {
+            throw URLError(.badServerResponse)
+        }
+        
+        return data
     }
     
     func delete(_ path: String, _ body: some Encodable) async throws -> Data {
