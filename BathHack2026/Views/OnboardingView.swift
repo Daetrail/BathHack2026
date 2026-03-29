@@ -39,25 +39,24 @@ struct OnboardingView: View {
                         viewModel.goToSignIn()
                     } label: {
                         Text("Sign In")
-                            .font(.title2)
+                            .font(.title3)
                             .frame(maxWidth: .infinity)
                     }
-                    .frame(height: 56)
+                    .frame(width: 120, height: 56)
                     .buttonStyle(.glassProminent)
 
                     Button {
                         viewModel.goToRegister()
                     } label: {
                         Text("Register")
-                            .font(.title2)
+                            .font(.title3)
                             .frame(maxWidth: .infinity)
                     }
-                    .frame(height: 56)
+                    .frame(width: 120, height: 56)
                     .tint(.gray)
                     .buttonStyle(.glassProminent)
                 }
-                .padding(.horizontal, 24)
-
+                
                 Spacer()
             }
             .navigationDestination(isPresented: $viewModel.navigateToSignIn) {
@@ -67,5 +66,6 @@ struct OnboardingView: View {
                 RegisterView()
             }
         }
+        
     }
 }
