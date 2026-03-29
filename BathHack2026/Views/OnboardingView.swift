@@ -4,58 +4,59 @@
 //
 //  Welcome screen with sign in and register options.
 //
-
 import SwiftUI
-
 struct OnboardingView: View {
     @State private var viewModel = OnboardingViewModel()
-
     var body: some View {
         NavigationStack {
-            VStack {
-                Spacer()
-
-                // App branding
-                VStack(spacing: 12) {
-                    Image(systemName: "toilet.fill")
-                        .font(.system(size: 60))
-                        .foregroundStyle(.blue)
-
-                    Text("Find My Toilet")
-                        .font(.system(size: 44, weight: .bold))
-                        .foregroundStyle(.primary)
-                        .multilineTextAlignment(.center)
-
-                    Text("Never get caught short again")
-                        .font(.title3)
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer()
-
-                // Auth buttons
-                VStack(spacing: 16) {
-                    Button {
-                        viewModel.goToSignIn()
-                    } label: {
-                        Text("Sign In")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .frame(width: 120, height: 56)
-                    .buttonStyle(.glassProminent)
-
-                    Button {
-                        viewModel.goToRegister()
-                    } label: {
-                        Text("Register")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .frame(width: 120, height: 56)
-                    .tint(.gray)
-                    .buttonStyle(.glassProminent)
-                }
+            ZStack {
+                Image("bgnew")
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
                 
-                Spacer()
+                VStack {
+                    Spacer()
+                    
+                    // App branding
+                    VStack(spacing: 12) {
+                        Text("Find My Toilet")
+                            .font(.system(size: 56, design: .serif))
+                            .foregroundStyle(.primary)
+                            .multilineTextAlignment(.center)
+                        Text("Nature doesn't wait - And neither should you.")
+                            .font(.title2)
+                            .foregroundStyle(.primary.opacity(0.95))
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding(.bottom, 30)
+                    
+                    // Auth buttons
+                    VStack(spacing: 16) {
+                        Button {
+                            viewModel.goToSignIn()
+                        } label: {
+                            Text("Sign In")
+                                .frame(maxWidth: .infinity)
+                                .font(.system(size: 20))
+                                .padding(.vertical, 10)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 68)
+                        .buttonStyle(.glassProminent)
+                        Button {
+                            viewModel.goToRegister()
+                        } label: {
+                            Text("Register")
+                                .frame(maxWidth: .infinity)
+                                .font(.system(size: 20))
+                                .padding(.vertical, 10)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 68)
+                        .buttonStyle(.glass)
+                    }
+                    .padding(.horizontal, 32)
+                    .padding(.bottom, 60)
+                }
             }
             .navigationDestination(isPresented: $viewModel.navigateToSignIn) {
                 SignInView()
@@ -64,6 +65,8 @@ struct OnboardingView: View {
                 RegisterView()
             }
         }
-        
     }
+}
+#Preview {
+    OnboardingView()
 }
