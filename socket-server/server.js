@@ -199,11 +199,23 @@ app.delete('/delete-toilet', (req, res) => {
 });
 
 // ---- Reviews: create review ----
-app.post('/create-review', (req, res) => {
-    const { toiletId, star, title, description } = req.body;
+app.post('/create-review', upload.single('image'), (req, res) => {
     const userId = getUserIdFromToken(req);
-
     if (!userId) return res.status(401).json({ success: false, message: 'Authentication required' });
+
+    let toiletId, star, title, description;
+
+    if (req.body.metadata) {
+        try {
+            const metadata = JSON.parse(req.body.metadata);
+            ({ toiletId, star, title, description } = metadata);
+        } catch {
+            return res.status(400).json({ success: false, message: 'Invalid metadata JSON' });
+        }
+    } else {
+        ({ toiletId, star, title, description } = req.body);
+    }
+
     if (!star) return res.status(400).json({ success: false, message: 'Rating required' });
     if (!title) return res.status(400).json({ success: false, message: 'Title required' });
     if (!description) return res.status(400).json({ success: false, message: 'Description required' });
@@ -211,23 +223,17 @@ app.post('/create-review', (req, res) => {
     const toilet = db.prepare('SELECT * FROM toilets WHERE toiletId = ?').get(toiletId);
     if (!toilet) return res.status(404).json({ success: false, message: 'Toilet not found' });
 
-    // Prevent duplicate reviews from the same user
-    const existing = db.prepare(
-        'SELECT * FROM reviews WHERE toiletId = ? AND userId = ?'
-    ).get(toiletId, userId);
-    if (existing) {
-        return res.status(409).json({ success: false, message: 'You already reviewed this toilet' });
-    }
+    const existing = db.prepare('SELECT * FROM reviews WHERE toiletId = ? AND userId = ?').get(toiletId, userId);
+    if (existing) return res.status(409).json({ success: false, message: 'You already reviewed this toilet' });
+
+    const reviewImageFilename = req.file?.filename ?? null;
 
     db.prepare(`
-        INSERT INTO reviews (toiletId, userId, star, title, description)
-        VALUES (?, ?, ?, ?, ?)
-    `).run(toiletId, userId, star, title, description);
+        INSERT INTO reviews (toiletId, userId, star, title, description, reviewImageFilename)
+        VALUES (?, ?, ?, ?, ?, ?)
+    `).run(toiletId, userId, star, title, description, reviewImageFilename);
 
-    // Recalculate average star rating for this toilet
-    const { avgStar } = db.prepare(
-        'SELECT ROUND(AVG(star), 1) as avgStar FROM reviews WHERE toiletId = ?'
-    ).get(toiletId);
+    const { avgStar } = db.prepare('SELECT ROUND(AVG(star), 1) as avgStar FROM reviews WHERE toiletId = ?').get(toiletId);
     db.prepare('UPDATE toilets SET avgStar = ? WHERE toiletId = ?').run(avgStar, toiletId);
 
     res.json({ success: true, message: 'Review created' });
@@ -266,7 +272,6 @@ app.get('/get-reviews', (req, res) => {
         let reviews;
 
         if (toiletId) {
-            // Get reviews for a specific toilet, including the reviewer's username
             reviews = db.prepare(`
                 SELECT reviews.*, users.username AS userCreator
                 FROM reviews
@@ -275,7 +280,6 @@ app.get('/get-reviews', (req, res) => {
                 ORDER BY reviews.date DESC
             `).all(toiletId);
         } else {
-            // Get all reviews with usernames
             reviews = db.prepare(`
                 SELECT reviews.*, users.username AS userCreator
                 FROM reviews
@@ -284,7 +288,14 @@ app.get('/get-reviews', (req, res) => {
             `).all();
         }
 
-        res.json({ success: true, reviews });
+        const mapped = reviews.map(r => ({
+            ...r,
+            imageUrl: r.reviewImageFilename
+                ? `/uploads/${r.reviewImageFilename}`
+                : null
+        }));
+
+        res.json({ success: true, reviews: mapped });
     } catch {
         res.json({ success: false, message: 'Failed to fetch reviews' });
     }
