@@ -15,8 +15,9 @@ struct RegisterView: View {
             Spacer()
             VStack(spacing: 20) {
                 Text("Create Account")
-                    .font(.system(size: 55, weight: .bold))
+                    .font(.system(size: 45, weight: .bold))
                     .padding(.bottom, 10)
+                
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Username")
                         .font(.caption)
